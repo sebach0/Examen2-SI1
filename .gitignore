@@ -1,0 +1,103 @@
+# =============================================
+# VARIABLES DE ENTORNO Y SECRETOS
+# =============================================
+.env
+.env.local
+.env.production
+.env.*.local
+backend/.env
+frontend/.env.local
+
+# =============================================
+# DEPENDENCIAS
+# =============================================
+node_modules/
+vendor/
+backend/vendor/
+frontend/node_modules/
+
+# =============================================
+# BUILD OUTPUTS
+# =============================================
+.next/
+build/
+dist/
+out/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+backend/bootstrap/cache/*
+!backend/bootstrap/cache/.gitignore
+
+# =============================================
+# FRAMEWORK CACHE Y STORAGE
+# =============================================
+backend/storage/logs/*
+!backend/storage/logs/.gitignore
+backend/storage/framework/cache/*
+!backend/storage/framework/cache/.gitignore
+backend/storage/framework/sessions/*
+!backend/storage/framework/sessions/.gitignore
+backend/storage/framework/testing/*
+!backend/storage/framework/testing/.gitignore
+backend/storage/framework/views/*
+!backend/storage/framework/views/.gitignore
+
+# =============================================
+# DOCKER VOLUMES
+# =============================================
+postgres_data/
+backend_vendor/
+
+# =============================================
+# OS FILES
+# =============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# =============================================
+# IDE Y EDITORES
+# =============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# =============================================
+# ARCHIVOS TEMPORALES
+# =============================================
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# =============================================
+# SCRIPTS Y DOCUMENTACIÓN TEMPORAL
+# =============================================
+*.ps1
+STATUS.md
+PROGRESS.md
+LEARNING.md
+QUICKSTART.md
+SETUP_GUIDE.md
+CU*.md
+
+# =============================================
+# DOCUMENTACIÓN DE DESPLIEGUE (OPCIONAL)
+# =============================================
+# Descomenta si no quieres subir estos archivos
+# AZURE_DEPLOY.md
+# DEPLOYMENT.md
