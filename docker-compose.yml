@@ -37,6 +37,8 @@ services:
       DB_PASSWORD: examen2_password
       APP_ENV: local
       APP_DEBUG: "true"
+      APP_TIMEZONE: America/La_Paz
+      TZ: America/La_Paz
     ports:
       - "8000:8000"
     volumes:

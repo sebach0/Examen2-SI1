@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Domain\Auth\Models\Usuario;
+use App\Domain\Shared\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -13,9 +14,11 @@ use Illuminate\Validation\ValidationException;
  * 
  * Maneja el inicio de sesión, cierre de sesión y obtención de datos del usuario autenticado.
  * Utiliza Laravel Sanctum para la autenticación basada en tokens.
+ * Registra todas las actividades de autenticación en la bitácora.
  */
 class AuthController extends Controller
 {
+    use LogsActivity;
     /**
      * Iniciar sesión de usuario normal
      * 
@@ -36,6 +39,9 @@ class AuthController extends Controller
 
         // Verificar que el usuario existe y la contraseña es correcta
         if (!$usuario || !Hash::check($request->password, $usuario->password_hash)) {
+            // Registrar intento fallido
+            $this->logLoginFallido($request->username, 'Credenciales inválidas');
+            
             throw ValidationException::withMessages([
                 'username' => ['Las credenciales proporcionadas son incorrectas.'],
             ]);
@@ -43,6 +49,9 @@ class AuthController extends Controller
 
         // Verificar que el usuario está activo
         if ($usuario->estado !== 'activo') {
+            // Registrar intento fallido por cuenta suspendida
+            $this->logLoginFallido($request->username, 'Cuenta suspendida');
+            
             throw ValidationException::withMessages([
                 'username' => ['Esta cuenta está suspendida.'],
             ]);
@@ -53,6 +62,12 @@ class AuthController extends Controller
 
         // Crear un token de acceso
         $token = $usuario->createToken('auth-token')->plainTextToken;
+
+        // Autenticar temporalmente para el registro en bitácora
+        auth('sanctum')->setUser($usuario);
+        
+        // Registrar login exitoso
+        $this->logLogin($usuario->username);
 
         return response()->json([
             'user' => $usuario,
@@ -83,6 +98,9 @@ class AuthController extends Controller
 
         // Verificar que el usuario existe y la contraseña es correcta
         if (!$usuario || !Hash::check($request->password, $usuario->password_hash)) {
+            // Registrar intento fallido de admin
+            $this->logLoginFallido($request->username, 'Credenciales inválidas (intento admin)');
+            
             throw ValidationException::withMessages([
                 'username' => ['Las credenciales proporcionadas son incorrectas.'],
             ]);
@@ -90,6 +108,9 @@ class AuthController extends Controller
 
         // Verificar que el usuario está activo
         if ($usuario->estado !== 'activo') {
+            // Registrar intento fallido por cuenta suspendida
+            $this->logLoginFallido($request->username, 'Cuenta suspendida (intento admin)');
+            
             throw ValidationException::withMessages([
                 'username' => ['Esta cuenta está suspendida.'],
             ]);
@@ -104,6 +125,9 @@ class AuthController extends Controller
         });
 
         if (!$esSuperadmin) {
+            // Registrar intento de acceso no autorizado al panel admin
+            $this->logLoginFallido($request->username, 'Sin permisos de administrador');
+            
             throw ValidationException::withMessages([
                 'username' => ['No tienes permisos para acceder al panel de administración.'],
             ]);
@@ -111,6 +135,12 @@ class AuthController extends Controller
 
         // Crear un token de acceso con habilidades especiales para admin
         $token = $usuario->createToken('admin-token', ['*'])->plainTextToken;
+
+        // Autenticar temporalmente para el registro en bitácora
+        auth('sanctum')->setUser($usuario);
+        
+        // Registrar login exitoso de administrador
+        $this->logActivity('LOGIN_ADMIN', "Superadmin '{$usuario->username}' accedió al panel de administración");
 
         return response()->json([
             'user' => $usuario,
@@ -129,6 +159,9 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        // Registrar logout antes de revocar el token
+        $this->logLogout();
+        
         // Revocar el token actual del usuario
         $request->user()->currentAccessToken()->delete();
 

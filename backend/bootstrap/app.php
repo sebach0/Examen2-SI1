@@ -12,7 +12,20 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Confiar en proxies de Azure (Application Gateway, Load Balancer)
+        // Esto permite detectar la IP real del cliente cuando está detrás de un proxy
+        $middleware->trustProxies(
+            at: '*',
+            headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR |
+                     \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST |
+                     \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT |
+                     \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO
+        );
+
+        // Middleware de bitácora para rutas API autenticadas
+        $middleware->api(append: [
+            \App\Http\Middleware\LogActivityMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

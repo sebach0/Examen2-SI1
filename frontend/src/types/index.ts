@@ -30,6 +30,7 @@ export interface Permiso {
   id: string;
   codigo: string; // Formato: "modulo.recurso.accion" ej: "academico.materias.crear"
   descripcion: string;
+  roles?: Rol[];
 }
 
 export interface AuthSession {
@@ -208,24 +209,74 @@ export interface ApiResponse<T> {
 
 export interface PaginatedResponse<T> {
   data: T[];
-  meta: {
-    current_page: number;
-    from: number;
-    last_page: number;
-    per_page: number;
-    to: number;
-    total: number;
-  };
-  links: {
-    first: string;
-    last: string;
-    prev: string | null;
-    next: string | null;
-  };
+  current_page: number;
+  first_page_url: string;
+  from: number | null;
+  last_page: number;
+  last_page_url: string;
+  links: Array<{
+    url: string | null;
+    label: string;
+    active: boolean;
+  }>;
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number | null;
+  total: number;
 }
 
 export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
   status: number;
+}
+
+// ==================
+// BITÁCORA (AUDIT LOG)
+// ==================
+
+export interface Bitacora {
+  id: string;
+  usuario_id: string | null;
+  accion: string;
+  descripcion: string | null;
+  ip: string | null;
+  user_agent: string | null;
+  metodo_http: string | null;
+  ruta: string | null;
+  datos_request: Record<string, any> | null;
+  datos_response: Record<string, any> | null;
+  codigo_http: number | null;
+  created_at: string;
+  usuario?: {
+    id: string;
+    username: string;
+    email: string;
+  };
+}
+
+export interface BitacoraEstadisticas {
+  total_eventos: number;
+  logins_exitosos: number;
+  logins_fallidos: number;
+  usuarios_activos: number;
+  acciones_por_tipo: Array<{
+    accion: string;
+    total: number;
+  }>;
+  actividad_por_dia: Array<{
+    fecha: string;
+    total: number;
+  }>;
+}
+
+export interface BitacoraFiltros {
+  usuario_id?: string;
+  accion?: string;
+  desde?: string;
+  hasta?: string;
+  per_page?: number;
+  page?: number;
 }
