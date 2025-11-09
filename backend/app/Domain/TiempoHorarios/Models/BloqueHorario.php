@@ -46,8 +46,8 @@ class BloqueHorario extends Model
      * Casts: Convertir hora_inicio/hora_fin a objetos Carbon
      */
     protected $casts = [
-        'hora_inicio' => 'datetime:H:i',
-        'hora_fin' => 'datetime:H:i',
+        'hora_inicio' => 'datetime',
+        'hora_fin' => 'datetime',
     ];
 
     /**

@@ -12,6 +12,7 @@ import {
 } from "@/services/usuario.service";
 import { getRoles } from "@/services/rol.service";
 import type { Usuario, Rol } from "@/types";
+import { User, Lock, Save, X, Edit, Plus } from "lucide-react";
 
 export default function UsuarioFormPage() {
   const router = useRouter();
@@ -200,14 +201,24 @@ export default function UsuarioFormPage() {
         <div className="mb-6">
           <button
             onClick={() => router.push("/usuarios")}
-            className="text-blue-500 hover:text-blue-700 mb-2 flex items-center gap-1"
+            className="text-blue-400 hover:text-blue-300 mb-2 flex items-center gap-1 transition-colors"
           >
             ← Volver a Usuarios
           </button>
-          <h1 className="text-3xl font-bold text-gray-800">
-            {isEditing ? "✏️ Editar Usuario" : "➕ Nuevo Usuario"}
+          <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+            {isEditing ? (
+              <>
+                <Edit className="w-8 h-8 text-blue-400" />
+                Editar Usuario
+              </>
+            ) : (
+              <>
+                <Plus className="w-8 h-8 text-blue-400" />
+                Nuevo Usuario
+              </>
+            )}
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-slate-400 mt-1">
             {isEditing
               ? "Modifica los datos del usuario"
               : "Completa los datos para crear un nuevo usuario"}
@@ -215,11 +226,11 @@ export default function UsuarioFormPage() {
         </div>
 
         {/* Formulario */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="glass rounded-lg p-6 border border-slate-700">
           {loading && isEditing ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
-              <p className="mt-2 text-gray-600">Cargando...</p>
+              <p className="mt-2 text-slate-400">Cargando...</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -227,8 +238,9 @@ export default function UsuarioFormPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Username */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    👤 Nombre de Usuario *
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-200 mb-2">
+                    <User className="w-4 h-4 text-blue-400" />
+                    Nombre de Usuario *
                   </label>
                   <input
                     type="text"
@@ -236,23 +248,23 @@ export default function UsuarioFormPage() {
                     value={formData.username}
                     onChange={handleInputChange}
                     placeholder="usuario123"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.username ? "border-red-500" : "border-gray-300"
+                    className={`w-full px-4 py-2 bg-slate-800 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-100 placeholder-slate-400 transition-all ${
+                      errors.username ? "border-red-500" : "border-slate-600"
                     }`}
                   />
                   {errors.username && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p className="mt-1 text-sm text-red-400">
                       {errors.username}
                     </p>
                   )}
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-slate-500">
                     Solo letras, números, guiones y guiones bajos
                   </p>
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-200 mb-2">
                     📧 Correo Electrónico *
                   </label>
                   <input
@@ -261,12 +273,12 @@ export default function UsuarioFormPage() {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="usuario@ejemplo.com"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.email ? "border-red-500" : "border-gray-300"
+                    className={`w-full px-4 py-2 bg-slate-800 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-100 placeholder-slate-400 transition-all ${
+                      errors.email ? "border-red-500" : "border-slate-600"
                     }`}
                   />
                   {errors.email && (
-                    <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                    <p className="mt-1 text-sm text-red-400">{errors.email}</p>
                   )}
                 </div>
               </div>
@@ -275,9 +287,9 @@ export default function UsuarioFormPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Password */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    🔒 Contraseña{" "}
-                    {isEditing ? "(dejar vacío para mantener)" : "*"}
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-200 mb-2">
+                    <Lock className="w-4 h-4 text-blue-400" />
+                    Contraseña {isEditing ? "(dejar vacío para mantener)" : "*"}
                   </label>
                   <input
                     type="password"
@@ -285,24 +297,25 @@ export default function UsuarioFormPage() {
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.password ? "border-red-500" : "border-gray-300"
+                    className={`w-full px-4 py-2 bg-slate-800 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-100 placeholder-slate-400 transition-all ${
+                      errors.password ? "border-red-500" : "border-slate-600"
                     }`}
                   />
                   {errors.password && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p className="mt-1 text-sm text-red-400">
                       {errors.password}
                     </p>
                   )}
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-slate-500">
                     Mínimo 6 caracteres
                   </p>
                 </div>
 
                 {/* Confirmar Password */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    🔒 Confirmar Contraseña
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-200 mb-2">
+                    <Lock className="w-4 h-4 text-blue-400" />
+                    Confirmar Contraseña
                   </label>
                   <input
                     type="password"
@@ -310,14 +323,14 @@ export default function UsuarioFormPage() {
                     value={formData.password_confirm}
                     onChange={handleInputChange}
                     placeholder="••••••••"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    className={`w-full px-4 py-2 bg-slate-800 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-100 placeholder-slate-400 transition-all ${
                       errors.password_confirm
                         ? "border-red-500"
-                        : "border-gray-300"
+                        : "border-slate-600"
                     }`}
                   />
                   {errors.password_confirm && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p className="mt-1 text-sm text-red-400">
                       {errors.password_confirm}
                     </p>
                   )}
@@ -326,14 +339,14 @@ export default function UsuarioFormPage() {
 
               {/* Estado */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-200 mb-2">
                   ⚡ Estado *
                 </label>
                 <select
                   name="estado"
                   value={formData.estado}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-100 transition-all"
                 >
                   <option value="activo">✓ Activo</option>
                   <option value="suspendido">✕ Suspendido</option>
@@ -342,28 +355,28 @@ export default function UsuarioFormPage() {
 
               {/* Roles */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-slate-200 mb-3">
                   🎭 Roles del Usuario
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {roles.map((rol) => (
                     <div
                       key={rol.id}
-                      className="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer"
+                      className="flex items-center p-3 border border-slate-600 rounded-lg hover:bg-slate-700/50 cursor-pointer transition-all"
                       onClick={() => handleRoleToggle(rol.id)}
                     >
                       <input
                         type="checkbox"
                         checked={formData.roles.includes(rol.id)}
                         onChange={() => handleRoleToggle(rol.id)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+                        className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-slate-500 rounded cursor-pointer"
                       />
                       <div className="ml-3">
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-slate-100">
                           {rol.nombre}
                         </div>
                         {rol.descripcion && (
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-slate-400">
                             {rol.descripcion}
                           </div>
                         )}
@@ -372,7 +385,7 @@ export default function UsuarioFormPage() {
                   ))}
                 </div>
                 {roles.length === 0 && (
-                  <p className="text-sm text-gray-500 italic">
+                  <p className="text-sm text-slate-500 italic">
                     No hay roles disponibles
                   </p>
                 )}
@@ -383,14 +396,15 @@ export default function UsuarioFormPage() {
                 <button
                   type="button"
                   onClick={() => router.push("/usuarios")}
-                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="px-6 py-2 border border-slate-600 rounded-lg text-slate-300 hover:bg-slate-700 transition-all flex items-center gap-2"
                   disabled={loading}
                 >
+                  <X className="w-4 h-4" />
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-glow"
                   disabled={loading}
                 >
                   {loading ? (
@@ -399,7 +413,10 @@ export default function UsuarioFormPage() {
                       Guardando...
                     </>
                   ) : (
-                    <>💾 {isEditing ? "Actualizar" : "Crear"} Usuario</>
+                    <>
+                      <Save className="w-4 h-4" />
+                      {isEditing ? "Actualizar" : "Crear"} Usuario
+                    </>
                   )}
                 </button>
               </div>
@@ -409,15 +426,15 @@ export default function UsuarioFormPage() {
 
         {/* Info adicional */}
         {!isEditing && (
-          <div className="mt-6 bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+          <div className="mt-6 glass border-l-4 border-blue-500 p-4 rounded">
             <div className="flex">
               <span className="text-blue-400 text-xl mr-2">💡</span>
               <div>
-                <p className="text-sm text-blue-800">
-                  <strong>Nota:</strong> El usuario podrá iniciar sesión con el
-                  nombre de usuario o correo electrónico y la contraseña que
-                  establezcas. Los roles determinan los permisos que tendrá en
-                  el sistema.
+                <p className="text-sm text-slate-300">
+                  <strong className="text-slate-100">Nota:</strong> El usuario
+                  podrá iniciar sesión con el nombre de usuario o correo
+                  electrónico y la contraseña que establezcas. Los roles
+                  determinan los permisos que tendrá en el sistema.
                 </p>
               </div>
             </div>

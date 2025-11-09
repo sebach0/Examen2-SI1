@@ -78,14 +78,18 @@ export default function PermisosPage() {
   const getModuloColor = (codigo: string) => {
     const modulo = codigo.split(".")[0];
     const colors: Record<string, string> = {
-      academico: "bg-blue-100 text-blue-800",
-      asistencia: "bg-green-100 text-green-800",
-      infraestructura: "bg-purple-100 text-purple-800",
-      horarios: "bg-yellow-100 text-yellow-800",
-      auth: "bg-red-100 text-red-800",
-      sistema: "bg-gray-100 text-gray-800",
+      academico: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+      asistencia: "bg-green-500/20 text-green-400 border border-green-500/30",
+      infraestructura:
+        "bg-purple-500/20 text-purple-400 border border-purple-500/30",
+      horarios: "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
+      auth: "bg-red-500/20 text-red-400 border border-red-500/30",
+      sistema: "bg-slate-500/20 text-slate-400 border border-slate-500/30",
     };
-    return colors[modulo] || "bg-gray-100 text-gray-800";
+    return (
+      colors[modulo] ||
+      "bg-slate-500/20 text-slate-400 border border-slate-500/30"
+    );
   };
 
   return (
@@ -94,21 +98,21 @@ export default function PermisosPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">🔐 Permisos</h1>
-            <p className="mt-2 text-sm text-gray-600">
+            <h1 className="text-3xl font-bold text-slate-100">🔐 Permisos</h1>
+            <p className="mt-2 text-sm text-slate-400">
               Gestiona los permisos del sistema
             </p>
           </div>
           <button
             onClick={() => router.push("/permisos/nuevo")}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-glow"
           >
             + Nuevo Permiso
           </button>
         </div>
 
         {/* Búsqueda */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="glass border-slate-700 rounded-lg p-6">
           <form onSubmit={handleSearch} className="flex gap-4">
             <div className="flex-1">
               <input
@@ -116,12 +120,12 @@ export default function PermisosPage() {
                 placeholder="Buscar por código o descripción..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-slate-800 border border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-100 placeholder-slate-400"
               />
             </div>
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors shadow-glow"
             >
               Buscar
             </button>
@@ -132,7 +136,7 @@ export default function PermisosPage() {
                   setSearchTerm("");
                   setCurrentPage(1);
                 }}
-                className="bg-gray-200 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-300 transition-colors"
+                className="bg-slate-700 text-slate-300 px-6 py-2 rounded-md hover:bg-slate-600 transition-colors"
               >
                 Limpiar
               </button>
@@ -141,12 +145,12 @@ export default function PermisosPage() {
         </div>
 
         {/* Tabla de Permisos */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">
+        <div className="glass border-slate-700 rounded-lg overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-700">
+            <h2 className="text-lg font-semibold text-slate-100">
               Lista de Permisos
             </h2>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-slate-400">
               Total: {total.toLocaleString()} permisos
             </p>
           </div>
@@ -154,35 +158,38 @@ export default function PermisosPage() {
           {loading ? (
             <div className="p-8 text-center">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="mt-2 text-gray-600">Cargando permisos...</p>
+              <p className="mt-2 text-slate-400">Cargando permisos...</p>
             </div>
           ) : permisos.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-8 text-center text-slate-400">
               No se encontraron permisos
             </div>
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-slate-700">
+                  <thead className="bg-slate-800/50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                         Código
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                         Descripción
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                         Roles
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-300 uppercase tracking-wider">
                         Acciones
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="divide-y divide-slate-700">
                     {permisos.map((permiso) => (
-                      <tr key={permiso.id} className="hover:bg-gray-50">
+                      <tr
+                        key={permiso.id}
+                        className="hover:bg-slate-700/30 transition-colors"
+                      >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
                             className={`px-2 py-1 text-xs font-mono font-medium rounded ${getModuloColor(
@@ -193,7 +200,7 @@ export default function PermisosPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">
+                          <div className="text-sm text-slate-100">
                             {permiso.descripcion}
                           </div>
                         </td>
@@ -203,19 +210,19 @@ export default function PermisosPage() {
                               {permiso.roles.slice(0, 3).map((rol) => (
                                 <span
                                   key={rol.id}
-                                  className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded"
+                                  className="px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 text-xs rounded"
                                 >
                                   {rol.nombre}
                                 </span>
                               ))}
                               {permiso.roles.length > 3 && (
-                                <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded">
+                                <span className="px-2 py-1 bg-slate-500/20 text-slate-400 border border-slate-500/30 text-xs rounded">
                                   +{permiso.roles.length - 3}
                                 </span>
                               )}
                             </div>
                           ) : (
-                            <span className="text-gray-400 text-sm">
+                            <span className="text-slate-500 text-sm">
                               Sin asignar
                             </span>
                           )}
@@ -225,13 +232,13 @@ export default function PermisosPage() {
                             onClick={() =>
                               router.push(`/permisos/${permiso.id}`)
                             }
-                            className="text-blue-600 hover:text-blue-900 mr-4"
+                            className="text-blue-400 hover:text-blue-300 mr-4 transition-colors"
                           >
                             ✏️ Editar
                           </button>
                           <button
                             onClick={() => handleDelete(permiso)}
-                            className="text-red-600 hover:text-red-900"
+                            className="text-red-400 hover:text-red-300 transition-colors"
                           >
                             🗑️ Eliminar
                           </button>
@@ -244,22 +251,29 @@ export default function PermisosPage() {
 
               {/* Paginación */}
               {totalPages > 1 && (
-                <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                  <div className="text-sm text-gray-600">
-                    Página {currentPage} de {totalPages}
+                <div className="px-6 py-4 border-t border-slate-700 flex items-center justify-between">
+                  <div className="text-sm text-slate-300">
+                    Página{" "}
+                    <span className="font-medium text-blue-400">
+                      {currentPage}
+                    </span>{" "}
+                    de{" "}
+                    <span className="font-medium text-blue-400">
+                      {totalPages}
+                    </span>
                   </div>
                   <div className="flex space-x-2">
                     <button
                       onClick={() => setCurrentPage((p) => p - 1)}
                       disabled={currentPage === 1}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 border border-slate-600 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       Anterior
                     </button>
                     <button
                       onClick={() => setCurrentPage((p) => p + 1)}
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-4 py-2 border border-slate-600 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       Siguiente
                     </button>

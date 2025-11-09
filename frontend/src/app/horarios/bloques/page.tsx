@@ -101,15 +101,17 @@ export default function BloquesPage() {
 
   const getDiaColor = (dia: number) => {
     const colors: Record<number, string> = {
-      1: "bg-blue-100 text-blue-800",
-      2: "bg-green-100 text-green-800",
-      3: "bg-yellow-100 text-yellow-800",
-      4: "bg-purple-100 text-purple-800",
-      5: "bg-pink-100 text-pink-800",
-      6: "bg-orange-100 text-orange-800",
-      7: "bg-red-100 text-red-800",
+      1: "bg-blue-500/20 text-blue-400 border border-blue-500/30",
+      2: "bg-green-500/20 text-green-400 border border-green-500/30",
+      3: "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
+      4: "bg-purple-500/20 text-purple-400 border border-purple-500/30",
+      5: "bg-pink-500/20 text-pink-400 border border-pink-500/30",
+      6: "bg-orange-500/20 text-orange-400 border border-orange-500/30",
+      7: "bg-red-500/20 text-red-400 border border-red-500/30",
     };
-    return colors[dia] || "bg-gray-100 text-gray-800";
+    return (
+      colors[dia] || "bg-slate-500/20 text-slate-400 border border-slate-500/30"
+    );
   };
 
   const getNombreDia = (dia: number) => {
@@ -139,16 +141,16 @@ export default function BloquesPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">
+            <h1 className="text-3xl font-bold text-slate-100">
               ⏰ Gestión de Bloques Horarios
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-slate-400 mt-1">
               Administra los períodos de tiempo para las clases
             </p>
           </div>
           <button
             onClick={() => router.push("/horarios/bloques/nuevo")}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-glow"
           >
             <span>➕</span>
             Nuevo Bloque
@@ -156,7 +158,7 @@ export default function BloquesPage() {
         </div>
 
         {/* Filtros */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+        <div className="glass border-slate-700 rounded-lg p-4 mb-6">
           <form onSubmit={handleSearch} className="flex flex-col gap-4">
             <div className="flex gap-4">
               <input
@@ -164,11 +166,11 @@ export default function BloquesPage() {
                 placeholder="🔍 Buscar por hora..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-100 placeholder-slate-400"
               />
               <button
                 type="submit"
-                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors shadow-glow"
               >
                 Buscar
               </button>
@@ -177,7 +179,7 @@ export default function BloquesPage() {
               <select
                 value={diaSeleccionado}
                 onChange={(e) => setDiaSeleccionado(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-100"
               >
                 <option value="">Todos los días</option>
                 {dias.map((dia) => (
@@ -191,42 +193,45 @@ export default function BloquesPage() {
         </div>
 
         {/* Tabla */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="glass border-slate-700 rounded-lg overflow-hidden">
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
-              <p className="mt-2 text-gray-600">Cargando bloques...</p>
+              <p className="mt-2 text-slate-400">Cargando bloques...</p>
             </div>
           ) : bloques.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
+              <p className="text-slate-400 text-lg">
                 No se encontraron bloques horarios
               </p>
             </div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-slate-700">
+              <thead className="bg-slate-800/50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                     Día
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                     Hora Inicio
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                     Hora Fin
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                     Duración
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-slate-700">
                 {bloques.map((bloque) => (
-                  <tr key={bloque.id} className="hover:bg-gray-50">
+                  <tr
+                    key={bloque.id}
+                    className="hover:bg-slate-700/30 transition-colors"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDiaColor(
@@ -236,14 +241,14 @@ export default function BloquesPage() {
                         📅 {getNombreDia(bloque.dia_semana)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-blue-400">
                       🕐 {formatearHora(bloque.hora_inicio)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-blue-400">
                       🕐 {formatearHora(bloque.hora_fin)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
                         ⏱️{" "}
                         {(() => {
                           const inicio = new Date(
@@ -261,7 +266,7 @@ export default function BloquesPage() {
                         onClick={() =>
                           router.push(`/horarios/bloques/${bloque.id}`)
                         }
-                        className="text-blue-600 hover:text-blue-900 mr-3"
+                        className="text-blue-400 hover:text-blue-300 mr-3 transition-colors"
                       >
                         ✏️ Editar
                       </button>
@@ -274,7 +279,7 @@ export default function BloquesPage() {
                             )}-${formatearHora(bloque.hora_fin)}`
                           )
                         }
-                        className="text-red-600 hover:text-red-900"
+                        className="text-red-400 hover:text-red-300 transition-colors"
                       >
                         🗑️ Eliminar
                       </button>
@@ -287,37 +292,40 @@ export default function BloquesPage() {
 
           {/* Paginación */}
           {!loading && bloques.length > 0 && (
-            <div className="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200">
-              <div className="text-sm text-gray-700">
+            <div className="bg-slate-800/50 px-4 py-3 flex items-center justify-between border-t border-slate-700">
+              <div className="text-sm text-slate-300">
                 Mostrando{" "}
-                <span className="font-medium">
+                <span className="font-medium text-blue-400">
                   {(pagination.current_page - 1) * pagination.per_page + 1}
                 </span>{" "}
                 a{" "}
-                <span className="font-medium">
+                <span className="font-medium text-blue-400">
                   {Math.min(
                     pagination.current_page * pagination.per_page,
                     pagination.total
                   )}
                 </span>{" "}
-                de <span className="font-medium">{pagination.total}</span>{" "}
+                de{" "}
+                <span className="font-medium text-blue-400">
+                  {pagination.total}
+                </span>{" "}
                 resultados
               </div>
               <div className="flex gap-2">
                 <button
                   onClick={() => handlePageChange(pagination.current_page - 1)}
                   disabled={pagination.current_page === 1}
-                  className="px-3 py-1 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                  className="px-3 py-1 border border-slate-600 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-700 text-slate-300 transition-all"
                 >
                   ← Anterior
                 </button>
-                <span className="px-3 py-1 border border-gray-300 rounded-md bg-white">
+                <span className="px-3 py-1 border border-slate-600 rounded-md bg-slate-800 text-slate-200">
                   Página {pagination.current_page} de {pagination.last_page}
                 </span>
                 <button
                   onClick={() => handlePageChange(pagination.current_page + 1)}
                   disabled={pagination.current_page === pagination.last_page}
-                  className="px-3 py-1 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                  className="px-3 py-1 border border-slate-600 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-700 text-slate-300 transition-all"
                 >
                   Siguiente →
                 </button>

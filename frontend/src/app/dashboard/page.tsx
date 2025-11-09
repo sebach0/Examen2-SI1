@@ -14,8 +14,8 @@ export default function DashboardPage() {
       <div className="space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">¡Bienvenido!</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-slate-100">¡Bienvenido!</h1>
+          <p className="text-slate-400 mt-1">
             Aquí tienes un resumen de la actividad del sistema
           </p>
         </div>
@@ -57,8 +57,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="glass rounded-lg p-6 border border-slate-700">
+          <h2 className="text-xl font-semibold text-slate-100 mb-4">
             Acciones Rápidas
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -87,8 +87,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="glass rounded-lg p-6 border border-slate-700">
+          <h2 className="text-xl font-semibold text-slate-100 mb-4">
             Actividad Reciente
           </h2>
           <div className="space-y-4">
@@ -134,28 +134,28 @@ function StatCard({
   color: string;
 }) {
   const colorClasses = {
-    blue: "bg-blue-50 text-blue-600",
-    green: "bg-green-50 text-green-600",
-    purple: "bg-purple-50 text-purple-600",
-    red: "bg-red-50 text-red-600",
+    blue: "bg-blue-500/20 text-blue-400",
+    green: "bg-green-500/20 text-green-400",
+    purple: "bg-purple-500/20 text-purple-400",
+    red: "bg-red-500/20 text-red-400",
   }[color];
 
   const trendColors = {
-    up: "text-green-600",
-    down: "text-red-600",
-    neutral: "text-gray-600",
+    up: "text-green-400",
+    down: "text-red-400",
+    neutral: "text-slate-400",
   }[trend];
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="glass rounded-lg p-6 border border-slate-700">
       <div className="flex items-center justify-between">
         <div className={`p-3 rounded-lg ${colorClasses}`}>
           <span className="text-2xl">{icon}</span>
         </div>
         <span className={`text-sm font-medium ${trendColors}`}>{change}</span>
       </div>
-      <h3 className="text-gray-600 text-sm mt-4">{title}</h3>
-      <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
+      <h3 className="text-slate-400 text-sm mt-4">{title}</h3>
+      <p className="text-3xl font-bold text-slate-100 mt-1">{value}</p>
     </div>
   );
 }
@@ -203,16 +203,16 @@ function ActivityItem({
   time: string;
 }) {
   return (
-    <div className="flex items-start space-x-4 p-3 hover:bg-gray-50 rounded-lg transition">
-      <div className="flex-shrink-0">
+    <div className="flex items-start space-x-4 p-3 hover:bg-slate-700/30 rounded-lg transition">
+      <div className="shrink-0">
         <span className="text-2xl">{icon}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900">{title}</p>
-        <p className="text-sm text-gray-500">{description}</p>
+        <p className="text-sm font-medium text-slate-100">{title}</p>
+        <p className="text-sm text-slate-400">{description}</p>
       </div>
-      <div className="flex-shrink-0">
-        <span className="text-xs text-gray-400">{time}</span>
+      <div className="shrink-0">
+        <span className="text-xs text-slate-500">{time}</span>
       </div>
     </div>
   );

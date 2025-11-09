@@ -1,26 +1,134 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Tema Oscuro Profesional - Paleta Principal */
+  --background: #0f172a;
+  /* Slate 900 */
+  --foreground: #f1f5f9;
+  /* Slate 100 */
+
+  /* Colores de Acento */
+  --primary: #3b82f6;
+  /* Blue 500 */
+  --primary-dark: #2563eb;
+  /* Blue 600 */
+  --primary-light: #60a5fa;
+  /* Blue 400 */
+
+  --secondary: #8b5cf6;
+  /* Violet 500 */
+  --secondary-dark: #7c3aed;
+  /* Violet 600 */
+
+  --accent: #06b6d4;
+  /* Cyan 500 */
+  --accent-dark: #0891b2;
+  /* Cyan 600 */
+
+  /* Estados */
+  --success: #10b981;
+  /* Green 500 */
+  --warning: #f59e0b;
+  /* Amber 500 */
+  --error: #ef4444;
+  /* Red 500 */
+  --info: #3b82f6;
+  /* Blue 500 */
+
+  /* Superficies */
+  --surface: #1e293b;
+  /* Slate 800 */
+  --surface-light: #334155;
+  /* Slate 700 */
+  --surface-dark: #0f172a;
+  /* Slate 900 */
+
+  /* Bordes */
+  --border: #334155;
+  /* Slate 700 */
+  --border-light: #475569;
+  /* Slate 600 */
+
+  /* Texto */
+  --text-primary: #f1f5f9;
+  /* Slate 100 */
+  --text-secondary: #cbd5e1;
+  /* Slate 300 */
+  --text-muted: #94a3b8;
+  /* Slate 400 */
 }
 
 @theme inline {
+  /* Tailwind Custom Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-surface: var(--surface);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-light);
+}
+
+/* Animaciones suaves */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Efectos de glassmorphism */
+.glass {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+/* Gradientes */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+}
+
+/* Sombras */
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.shadow-glow-secondary {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
 }

@@ -7,6 +7,29 @@ import { hasAuthToken } from "@/lib/auth";
 import { LogoutButton } from "@/components/shared/LogoutButton";
 import { getCurrentUser } from "@/services/auth.service";
 import type { Usuario } from "@/types";
+import {
+  LayoutDashboard,
+  GraduationCap,
+  BookOpen,
+  Users,
+  Calendar,
+  UserCircle,
+  Building2,
+  Building,
+  DoorOpen,
+  Clock,
+  ClipboardList,
+  CalendarDays,
+  CheckCircle2,
+  CheckSquare,
+  BarChart3,
+  Settings,
+  Shield,
+  KeyRound,
+  Wrench,
+  FileText,
+  type LucideIcon,
+} from "lucide-react";
 
 export function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -68,9 +91,9 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navbar Mejorado - Responsive */}
-      <nav className="bg-white border-b border-gray-200 fixed w-full z-30 top-0 shadow-sm">
+    <div className="min-h-screen bg-slate-900">
+      {/* Navbar Mejorado - Tema Oscuro */}
+      <nav className="glass border-b border-slate-700 fixed w-full z-30 top-0 shadow-lg">
         <div className="px-3 sm:px-4 lg:px-6">
           <div className="flex justify-between items-center h-16">
             {/* Left Section */}
@@ -78,11 +101,11 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
               {/* Toggle Sidebar Button con animación */}
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 group"
+                className="p-2 rounded-lg hover:bg-slate-700/50 hover:text-blue-400 transition-all duration-200 group"
                 aria-label="Toggle sidebar"
               >
                 <svg
-                  className={`w-6 h-6 text-gray-600 group-hover:text-blue-600 transition-transform duration-300 ${
+                  className={`w-6 h-6 text-slate-300 group-hover:text-blue-400 transition-transform duration-300 ${
                     isSidebarOpen ? "rotate-90" : ""
                   }`}
                   fill="none"
@@ -100,16 +123,16 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
 
               {/* Logo y Título - Responsive */}
               <div className="flex items-center space-x-2">
-                <div className="h-8 w-8 sm:h-10 sm:w-10 bg-linear-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                <div className="h-8 w-8 sm:h-10 sm:w-10 gradient-primary rounded-lg flex items-center justify-center shadow-glow">
                   <span className="text-white font-bold text-lg sm:text-xl">
                     SA
                   </span>
                 </div>
                 <div className="hidden sm:block">
-                  <h1 className="text-lg sm:text-xl font-bold bg-linear-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                  <h1 className="text-lg sm:text-xl font-bold bg-linear-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">
                     Sistema de Asistencias
                   </h1>
-                  <p className="text-xs text-gray-500 -mt-1">Universidad</p>
+                  <p className="text-xs text-slate-400 -mt-1">Universidad</p>
                 </div>
               </div>
             </div>
@@ -118,10 +141,10 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
             <div className="flex items-center space-x-2 sm:space-x-3">
               {/* Username - Oculto en móvil */}
               <div className="hidden md:flex flex-col items-end">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-slate-100">
                   {user.username || "Usuario"}
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-slate-400">
                   {user.roles && user.roles.length > 0
                     ? user.roles[0].nombre
                     : "Usuario"}
@@ -130,15 +153,15 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
 
               {/* Avatar */}
               <div className="relative group">
-                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold shadow-md ring-2 ring-white cursor-pointer transition-transform duration-200 hover:scale-105">
+                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full gradient-primary flex items-center justify-center text-white font-semibold shadow-glow ring-2 ring-slate-700 cursor-pointer transition-transform duration-200 hover:scale-105">
                   {(user.username || "U").charAt(0).toUpperCase()}
                 </div>
                 {/* Tooltip con info del usuario */}
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 p-3 md:hidden">
-                  <p className="text-sm font-medium text-gray-900">
+                <div className="absolute right-0 mt-2 w-48 glass rounded-lg shadow-xl border border-slate-600 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 p-3 md:hidden">
+                  <p className="text-sm font-medium text-slate-100">
                     {user.username}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">{user.email}</p>
+                  <p className="text-xs text-slate-400 mt-1">{user.email}</p>
                 </div>
               </div>
 
@@ -154,16 +177,16 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
         {/* Overlay para móviles - con animación mejorada */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden transition-opacity duration-300 backdrop-blur-sm"
+            className="fixed inset-0 bg-black bg-opacity-70 z-10 lg:hidden transition-opacity duration-300 backdrop-blur-sm"
             onClick={() => setIsSidebarOpen(false)}
             aria-label="Close sidebar"
           />
         )}
 
-        {/* Sidebar con animación mejorado */}
+        {/* Sidebar con animación mejorado - Tema Oscuro */}
         <aside
           className={`
-            bg-white border-r border-gray-200 fixed left-0 top-16 bottom-0
+            glass border-r border-slate-700 fixed left-0 top-16 bottom-0
             transition-all duration-300 ease-in-out z-20 overflow-y-auto
             ${
               isSidebarOpen
@@ -176,7 +199,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
             {/* Dashboard */}
             <NavLink
               href="/dashboard"
-              icon="📊"
+              icon={LayoutDashboard}
               active={pathname === "/dashboard"}
               isOpen={isSidebarOpen}
             >
@@ -186,14 +209,14 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
             {/* Sección Académico */}
             <MenuSection
               title="Académico"
-              icon="🎓"
+              icon={GraduationCap}
               isOpen={isSidebarOpen}
               isExpanded={expandedSections.academico}
               onToggle={() => toggleSection("academico")}
             >
               <NavLink
                 href="/academico/materias"
-                icon="📚"
+                icon={BookOpen}
                 active={pathname.startsWith("/academico/materias")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -202,7 +225,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
               </NavLink>
               <NavLink
                 href="/academico/grupos"
-                icon="👥"
+                icon={Users}
                 active={pathname.startsWith("/academico/grupos")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -211,7 +234,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
               </NavLink>
               <NavLink
                 href="/academico/gestiones"
-                icon="📅"
+                icon={Calendar}
                 active={pathname.startsWith("/academico/gestiones")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -220,7 +243,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
               </NavLink>
               <NavLink
                 href="/docentes"
-                icon="👨‍🏫"
+                icon={UserCircle}
                 active={pathname.startsWith("/docentes")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -232,14 +255,14 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
             {/* Sección Infraestructura */}
             <MenuSection
               title="Infraestructura"
-              icon="🏗️"
+              icon={Building2}
               isOpen={isSidebarOpen}
               isExpanded={expandedSections.infraestructura}
               onToggle={() => toggleSection("infraestructura")}
             >
               <NavLink
                 href="/infra/edificios"
-                icon="🏢"
+                icon={Building}
                 active={pathname.startsWith("/infra/edificios")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -248,7 +271,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
               </NavLink>
               <NavLink
                 href="/infra/aulas"
-                icon="🚪"
+                icon={DoorOpen}
                 active={pathname.startsWith("/infra/aulas")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -260,14 +283,14 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
             {/* Sección Horarios */}
             <MenuSection
               title="Horarios"
-              icon="🕒"
+              icon={Clock}
               isOpen={isSidebarOpen}
               isExpanded={expandedSections.horarios}
               onToggle={() => toggleSection("horarios")}
             >
               <NavLink
                 href="/horarios/bloques"
-                icon="⏰"
+                icon={Clock}
                 active={pathname.startsWith("/horarios/bloques")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -276,7 +299,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
               </NavLink>
               <NavLink
                 href="/horarios/cargas"
-                icon="📋"
+                icon={ClipboardList}
                 active={pathname.startsWith("/horarios/cargas")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -285,7 +308,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
               </NavLink>
               <NavLink
                 href="/horarios/programacion"
-                icon="📆"
+                icon={CalendarDays}
                 active={pathname.startsWith("/horarios/programacion")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -297,14 +320,14 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
             {/* Sección Asistencia */}
             <MenuSection
               title="Asistencia"
-              icon="✅"
+              icon={CheckCircle2}
               isOpen={isSidebarOpen}
               isExpanded={expandedSections.asistencia}
               onToggle={() => toggleSection("asistencia")}
             >
               <NavLink
                 href="/asistencia/marcar"
-                icon="✓"
+                icon={CheckSquare}
                 active={pathname.startsWith("/asistencia/marcar")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -313,7 +336,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
               </NavLink>
               <NavLink
                 href="/asistencia/reportes"
-                icon="📈"
+                icon={BarChart3}
                 active={pathname.startsWith("/asistencia/reportes")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -325,14 +348,14 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
             {/* Sección Administración */}
             <MenuSection
               title="Administración"
-              icon="⚙️"
+              icon={Settings}
               isOpen={isSidebarOpen}
               isExpanded={expandedSections.administracion}
               onToggle={() => toggleSection("administracion")}
             >
               <NavLink
                 href="/usuarios"
-                icon="�"
+                icon={Users}
                 active={pathname.startsWith("/usuarios")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -341,7 +364,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
               </NavLink>
               <NavLink
                 href="/roles"
-                icon="🎭"
+                icon={Shield}
                 active={pathname.startsWith("/roles")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -350,7 +373,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
               </NavLink>
               <NavLink
                 href="/permisos"
-                icon="🔐"
+                icon={KeyRound}
                 active={pathname.startsWith("/permisos")}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -362,14 +385,14 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
             {/* Sección Sistema */}
             <MenuSection
               title="Sistema"
-              icon="🔧"
+              icon={Wrench}
               isOpen={isSidebarOpen}
               isExpanded={expandedSections.sistema}
               onToggle={() => toggleSection("sistema")}
             >
               <NavLink
                 href="/bitacora"
-                icon="📋"
+                icon={FileText}
                 active={pathname === "/bitacora"}
                 isOpen={isSidebarOpen}
                 isSubmenu
@@ -380,10 +403,10 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
           </nav>
         </aside>
 
-        {/* Main content con transición suave - Responsive */}
+        {/* Main content con transición suave - Tema Oscuro */}
         <main
           className={`
-            flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 ease-in-out min-h-screen
+            flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 ease-in-out min-h-screen bg-slate-900
             ${isSidebarOpen ? "ml-0 lg:ml-64" : "ml-0 lg:ml-16"}
           `}
         >
@@ -397,14 +420,14 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
 // Componente de Sección de Menú Colapsable
 function MenuSection({
   title,
-  icon,
+  icon: Icon,
   children,
   isOpen,
   isExpanded,
   onToggle,
 }: {
   title: string;
-  icon: string;
+  icon: LucideIcon;
   children: React.ReactNode;
   isOpen: boolean;
   isExpanded: boolean;
@@ -415,11 +438,11 @@ function MenuSection({
     return (
       <div className="py-1">
         <div className="flex justify-center py-2">
-          <span className="text-xl" title={title}>
-            {icon}
-          </span>
+          <div title={title}>
+            <Icon className="w-5 h-5 text-slate-400" />
+          </div>
         </div>
-        <div className="border-t border-gray-200 my-2"></div>
+        <div className="border-t border-slate-700 my-2"></div>
       </div>
     );
   }
@@ -428,10 +451,10 @@ function MenuSection({
     <div className="py-1">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-all duration-200"
+        className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider hover:text-slate-200 hover:bg-slate-700/50 rounded-lg transition-all duration-200"
       >
         <div className="flex items-center space-x-2">
-          <span className="text-base">{icon}</span>
+          <Icon className="w-4 h-4" />
           <span>{title}</span>
         </div>
         <svg
@@ -456,7 +479,7 @@ function MenuSection({
           ${isExpanded ? "max-h-96 opacity-100 mt-1" : "max-h-0 opacity-0"}
         `}
       >
-        <div className="space-y-1 ml-2 pl-3 border-l-2 border-gray-200">
+        <div className="space-y-1 ml-2 pl-3 border-l-2 border-slate-700">
           {children}
         </div>
       </div>
@@ -467,14 +490,14 @@ function MenuSection({
 // Componente de Link de Navegación
 function NavLink({
   href,
-  icon,
+  icon: Icon,
   children,
   active,
   isOpen = true,
   isSubmenu = false,
 }: {
   href: string;
-  icon: string;
+  icon: LucideIcon;
   children: React.ReactNode;
   active?: boolean;
   isOpen?: boolean;
@@ -489,16 +512,14 @@ function NavLink({
         ${isOpen ? "space-x-3" : "justify-center space-x-0"}
         ${
           active
-            ? "bg-linear-to-r from-blue-50 to-blue-100 text-blue-700 font-medium shadow-sm"
-            : "text-gray-700 hover:bg-gray-50 hover:text-blue-600"
+            ? "bg-linear-to-r from-blue-500/20 to-violet-500/20 text-blue-400 font-medium shadow-glow border border-blue-500/30"
+            : "text-slate-300 hover:bg-slate-700/50 hover:text-blue-400 border border-transparent"
         }
-        ${isSubmenu && active ? "border-l-2 border-blue-500 pl-2" : ""}
+        ${isSubmenu && active ? "border-l-2 border-blue-400 pl-2" : ""}
       `}
       title={!isOpen ? String(children) : undefined}
     >
-      <span className={`shrink-0 ${isSubmenu ? "text-sm" : "text-lg"}`}>
-        {icon}
-      </span>
+      <Icon className={`shrink-0 ${isSubmenu ? "w-4 h-4" : "w-5 h-5"}`} />
       <span
         className={`
           transition-all duration-300 whitespace-nowrap overflow-hidden
@@ -510,7 +531,7 @@ function NavLink({
       {active && isOpen && (
         <span className="ml-auto">
           <svg
-            className="w-4 h-4 text-blue-600"
+            className="w-4 h-4 text-blue-400"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
