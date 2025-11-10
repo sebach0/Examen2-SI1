@@ -57,8 +57,8 @@ class AuthController extends Controller
             ]);
         }
 
-        // Cargar las relaciones de roles y permisos
-        $usuario->load('roles.permisos');
+        // Cargar las relaciones de roles, permisos y docente
+        $usuario->load(['roles.permisos', 'docente']);
 
         // Crear un token de acceso
         $token = $usuario->createToken('auth-token')->plainTextToken;
@@ -116,8 +116,8 @@ class AuthController extends Controller
             ]);
         }
 
-        // Cargar las relaciones de roles
-        $usuario->load('roles.permisos');
+        // Cargar las relaciones de roles, permisos y docente
+        $usuario->load(['roles.permisos', 'docente']);
 
         // Verificar que el usuario tiene el rol de Superadmin
         $esSuperadmin = $usuario->roles->contains(function ($rol) {
@@ -173,15 +173,15 @@ class AuthController extends Controller
     /**
      * Obtener datos del usuario autenticado
      * 
-     * Retorna la información del usuario con sus roles y permisos
+     * Retorna la información del usuario con sus roles, permisos y perfil de docente
      * 
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function me(Request $request)
     {
-        // Obtener el usuario autenticado con sus roles y permisos
-        $usuario = $request->user()->load('roles.permisos');
+        // Obtener el usuario autenticado con sus roles, permisos y docente
+        $usuario = $request->user()->load(['roles.permisos', 'docente']);
 
         return response()->json([
             'user' => $usuario

@@ -40,8 +40,9 @@ export default function LoginPage() {
         password: data.password,
       });
 
-      // Guardar token en localStorage
+      // Guardar token y usuario en localStorage
       localStorage.setItem("auth_token", response.token);
+      localStorage.setItem("auth_user", JSON.stringify(response.user));
 
       // Redirigir al dashboard después del login exitoso
       router.push("/dashboard");

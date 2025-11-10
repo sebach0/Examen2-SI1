@@ -12,6 +12,12 @@ use App\Http\Controllers\Api\Academico\MateriaController;
 use App\Http\Controllers\Api\Academico\GrupoController;
 use App\Http\Controllers\Api\Infraestructura\AulaController;
 use App\Http\Controllers\Api\TiempoHorarios\BloqueHorarioController;
+use App\Http\Controllers\Api\Academico\GestionController;
+use App\Http\Controllers\Api\Infraestructura\EdificioController;
+use App\Http\Controllers\Api\TiempoHorarios\CargaDocenteController;
+use App\Http\Controllers\Api\TiempoHorarios\HorarioGrupoController;
+use App\Http\Controllers\Api\Asistencia\AsistenciaController;
+use App\Http\Controllers\Api\Asistencia\QrSesionController;
 
 /**
  * Rutas de Autenticación (públicas)
@@ -145,4 +151,76 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{id}', [BloqueHorarioController::class, 'update']);
         Route::delete('/{id}', [BloqueHorarioController::class, 'destroy']);
     });
+
+    /**
+     * Rutas de Gestiones Académicas
+     */
+    Route::prefix('gestiones')->group(function () {
+        Route::get('/', [GestionController::class, 'index']);
+        Route::get('/activa', [GestionController::class, 'activa']);
+        Route::post('/', [GestionController::class, 'store']);
+        Route::get('/{id}', [GestionController::class, 'show']);
+        Route::put('/{id}', [GestionController::class, 'update']);
+        Route::delete('/{id}', [GestionController::class, 'destroy']);
+    });
+
+    /**
+     * Rutas de Edificios
+     */
+    Route::prefix('edificios')->group(function () {
+        Route::get('/', [EdificioController::class, 'index']);
+        Route::post('/', [EdificioController::class, 'store']);
+        Route::get('/{id}', [EdificioController::class, 'show']);
+        Route::put('/{id}', [EdificioController::class, 'update']);
+        Route::delete('/{id}', [EdificioController::class, 'destroy']);
+    });
+
+    /**
+     * Rutas de Cargas Docentes
+     */
+    Route::prefix('cargas-docentes')->group(function () {
+        Route::get('/', [CargaDocenteController::class, 'index']);
+        Route::get('/docente/{docenteId}', [CargaDocenteController::class, 'byDocente']);
+        Route::get('/grupo/{grupoId}', [CargaDocenteController::class, 'byGrupo']);
+        Route::post('/', [CargaDocenteController::class, 'store']);
+        Route::get('/{id}', [CargaDocenteController::class, 'show']);
+        Route::put('/{id}', [CargaDocenteController::class, 'update']);
+        Route::delete('/{id}', [CargaDocenteController::class, 'destroy']);
+    });
+
+    /**
+     * Rutas de Horarios de Grupo
+     */
+    Route::prefix('horarios-grupo')->group(function () {
+        Route::get('/', [HorarioGrupoController::class, 'index']);
+        Route::get('/grupo/{grupoId}', [HorarioGrupoController::class, 'byGrupo']);
+        Route::get('/aula/{aulaId}', [HorarioGrupoController::class, 'byAula']);
+        Route::post('/verificar-conflictos', [HorarioGrupoController::class, 'verificarConflictos']);
+        Route::post('/', [HorarioGrupoController::class, 'store']);
+        Route::get('/{id}', [HorarioGrupoController::class, 'show']);
+        Route::put('/{id}', [HorarioGrupoController::class, 'update']);
+        Route::delete('/{id}', [HorarioGrupoController::class, 'destroy']);
+    });
+
+    /**
+     * Rutas de Asistencias
+     */
+    Route::prefix('asistencias')->group(function () {
+        Route::get('/', [AsistenciaController::class, 'index']);
+        Route::post('/', [AsistenciaController::class, 'store']);
+        Route::post('/qr', [AsistenciaController::class, 'marcarPorQr']);
+        Route::get('/estadisticas/docente/{docenteId}', [AsistenciaController::class, 'estadisticasDocente']);
+        Route::get('/estadisticas/grupo/{grupoId}', [AsistenciaController::class, 'estadisticasGrupo']);
+        Route::post('/exportar', [AsistenciaController::class, 'exportar']);
+    });
+
+    /**
+     * Rutas de QR Sesiones
+     */
+    Route::prefix('qr-sesiones')->group(function () {
+        Route::post('/generar', [QrSesionController::class, 'generar']);
+        Route::get('/verificar/{token}', [QrSesionController::class, 'verificar']);
+        Route::post('/{id}/desactivar', [QrSesionController::class, 'desactivar']);
+    });
 });
+

@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Domain\Academico\Models\Carrera;
 use App\Domain\Academico\Models\Materia;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class AcademicoSeeder extends Seeder
 {
@@ -64,7 +65,11 @@ class AcademicoSeeder extends Seeder
             'horas_semanales' => 6,
             'creditos' => 8,
         ]);
-        $calculo2->requisitos()->attach($calculo1->id);
+        DB::table('materia_requisito')->insert([
+            'id' => Str::uuid(),
+            'materia_id' => $calculo2->id,
+            'requisito_id' => $calculo1->id,
+        ]);
 
         $prog_avanzada = Materia::create([
             'id' => Str::uuid(),
@@ -74,7 +79,11 @@ class AcademicoSeeder extends Seeder
             'horas_semanales' => 6,
             'creditos' => 8,
         ]);
-        $prog_avanzada->requisitos()->attach($intro_prog->id);
+        DB::table('materia_requisito')->insert([
+            'id' => Str::uuid(),
+            'materia_id' => $prog_avanzada->id,
+            'requisito_id' => $intro_prog->id,
+        ]);
 
         $estructuras = Materia::create([
             'id' => Str::uuid(),
@@ -84,7 +93,16 @@ class AcademicoSeeder extends Seeder
             'horas_semanales' => 6,
             'creditos' => 8,
         ]);
-        $estructuras->requisitos()->sync([$intro_prog->id, $algebra->id]);
+        DB::table('materia_requisito')->insert([
+            'id' => Str::uuid(),
+            'materia_id' => $estructuras->id,
+            'requisito_id' => $intro_prog->id,
+        ]);
+        DB::table('materia_requisito')->insert([
+            'id' => Str::uuid(),
+            'materia_id' => $estructuras->id,
+            'requisito_id' => $algebra->id,
+        ]);
 
         // Materias de Tercer Semestre
         $basedatos = Materia::create([
@@ -95,7 +113,11 @@ class AcademicoSeeder extends Seeder
             'horas_semanales' => 6,
             'creditos' => 8,
         ]);
-        $basedatos->requisitos()->attach($estructuras->id);
+        DB::table('materia_requisito')->insert([
+            'id' => Str::uuid(),
+            'materia_id' => $basedatos->id,
+            'requisito_id' => $estructuras->id,
+        ]);
 
         $algoritmos = Materia::create([
             'id' => Str::uuid(),
@@ -105,13 +127,17 @@ class AcademicoSeeder extends Seeder
             'horas_semanales' => 4,
             'creditos' => 6,
         ]);
-        $algoritmos->requisitos()->attach($estructuras->id);
+        DB::table('materia_requisito')->insert([
+            'id' => Str::uuid(),
+            'materia_id' => $algoritmos->id,
+            'requisito_id' => $estructuras->id,
+        ]);
 
         // Materias de Ingeniería Industrial
         $calculo1_ind = Materia::create([
             'id' => Str::uuid(),
             'carrera_id' => $ingIndustrial->id,
-            'codigo' => 'MAT-101',
+            'codigo' => 'IND-101',
             'nombre' => 'Cálculo I',
             'horas_semanales' => 6,
             'creditos' => 8,
@@ -120,7 +146,7 @@ class AcademicoSeeder extends Seeder
         $fisica1 = Materia::create([
             'id' => Str::uuid(),
             'carrera_id' => $ingIndustrial->id,
-            'codigo' => 'FIS-101',
+            'codigo' => 'IND-102',
             'nombre' => 'Física I',
             'horas_semanales' => 6,
             'creditos' => 8,
@@ -129,8 +155,117 @@ class AcademicoSeeder extends Seeder
         $estadistica = Materia::create([
             'id' => Str::uuid(),
             'carrera_id' => $ingIndustrial->id,
-            'codigo' => 'EST-101',
+            'codigo' => 'IND-103',
             'nombre' => 'Estadística I',
+            'horas_semanales' => 4,
+            'creditos' => 6,
+        ]);
+
+        // Más materias de Sistemas - Cuarto Semestre
+        $ingsoft = Materia::create([
+            'id' => Str::uuid(),
+            'carrera_id' => $ingSistemas->id,
+            'codigo' => 'SIS-401',
+            'nombre' => 'Ingeniería de Software I',
+            'horas_semanales' => 6,
+            'creditos' => 8,
+        ]);
+        DB::table('materia_requisito')->insert([
+            'id' => Str::uuid(),
+            'materia_id' => $ingsoft->id,
+            'requisito_id' => $basedatos->id,
+        ]);
+
+        $redesI = Materia::create([
+            'id' => Str::uuid(),
+            'carrera_id' => $ingSistemas->id,
+            'codigo' => 'SIS-402',
+            'nombre' => 'Redes de Computadoras I',
+            'horas_semanales' => 6,
+            'creditos' => 8,
+        ]);
+
+        $sisoper = Materia::create([
+            'id' => Str::uuid(),
+            'carrera_id' => $ingSistemas->id,
+            'codigo' => 'SIS-403',
+            'nombre' => 'Sistemas Operativos',
+            'horas_semanales' => 6,
+            'creditos' => 8,
+        ]);
+
+        // Quinto Semestre
+        $basedatos2 = Materia::create([
+            'id' => Str::uuid(),
+            'carrera_id' => $ingSistemas->id,
+            'codigo' => 'SIS-501',
+            'nombre' => 'Base de Datos II',
+            'horas_semanales' => 6,
+            'creditos' => 8,
+        ]);
+        DB::table('materia_requisito')->insert([
+            'id' => Str::uuid(),
+            'materia_id' => $basedatos2->id,
+            'requisito_id' => $basedatos->id,
+        ]);
+
+        $webI = Materia::create([
+            'id' => Str::uuid(),
+            'carrera_id' => $ingSistemas->id,
+            'codigo' => 'SIS-502',
+            'nombre' => 'Desarrollo Web I',
+            'horas_semanales' => 6,
+            'creditos' => 8,
+        ]);
+        DB::table('materia_requisito')->insert([
+            'id' => Str::uuid(),
+            'materia_id' => $webI->id,
+            'requisito_id' => $prog_avanzada->id,
+        ]);
+
+        $ia = Materia::create([
+            'id' => Str::uuid(),
+            'carrera_id' => $ingSistemas->id,
+            'codigo' => 'SIS-503',
+            'nombre' => 'Inteligencia Artificial',
+            'horas_semanales' => 4,
+            'creditos' => 6,
+        ]);
+        DB::table('materia_requisito')->insert([
+            'id' => Str::uuid(),
+            'materia_id' => $ia->id,
+            'requisito_id' => $algoritmos->id,
+        ]);
+        DB::table('materia_requisito')->insert([
+            'id' => Str::uuid(),
+            'materia_id' => $ia->id,
+            'requisito_id' => $estadistica->id,
+        ]);
+
+        // Más materias de Industrial
+        $produccion = Materia::create([
+            'id' => Str::uuid(),
+            'carrera_id' => $ingIndustrial->id,
+            'codigo' => 'IND-201',
+            'nombre' => 'Gestión de Producción',
+            'horas_semanales' => 6,
+            'creditos' => 8,
+        ]);
+
+        $calidad = Materia::create([
+            'id' => Str::uuid(),
+            'carrera_id' => $ingIndustrial->id,
+            'codigo' => 'IND-301',
+            'nombre' => 'Control de Calidad',
+            'horas_semanales' => 4,
+            'creditos' => 6,
+        ]);
+
+        $logistica = Materia::create([
+            'id' => Str::uuid(),
+            'carrera_id' => $ingIndustrial->id,
+            'codigo' => 'IND-302',
+            'nombre' => 'Logística y Cadena de Suministro',
             'horas_semanales' => 4,
             'creditos' => 6,
         ]);

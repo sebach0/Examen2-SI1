@@ -54,10 +54,14 @@ class GruposSeeder extends Seeder
         // Obtener algunas materias
         $calculoI = Materia::where('codigo', 'MAT-101')->first();
         $calculoII = Materia::where('codigo', 'MAT-102')->first();
-        $fisica = Materia::where('codigo', 'FIS-101')->first();
-        $introProg = Materia::where('codigo', 'INF-101')->first();
-        $estructuras = Materia::where('codigo', 'INF-102')->first();
-        $baseDatos = Materia::where('codigo', 'INF-201')->first();
+        $algebraLineal = Materia::where('codigo', 'MAT-111')->first();
+        $introProg = Materia::where('codigo', 'SIS-101')->first();
+        $progAvanzada = Materia::where('codigo', 'SIS-102')->first();
+        $estructuras = Materia::where('codigo', 'SIS-201')->first();
+        $baseDatos = Materia::where('codigo', 'SIS-301')->first();
+        $ingsoft = Materia::where('codigo', 'SIS-401')->first();
+        $webI = Materia::where('codigo', 'SIS-502')->first();
+        $ia = Materia::where('codigo', 'SIS-503')->first();
 
         $grupos = [];
 
@@ -88,23 +92,30 @@ class GruposSeeder extends Seeder
                 'codigo' => 'A',
                 'capacidad' => 35,
             ];
-        }
-
-        // Grupos para Física (2024-1)
-        if ($fisica && $gestion2024_1) {
             $grupos[] = [
                 'id' => (string) \Illuminate\Support\Str::uuid(),
-                'materia_id' => $fisica->id,
+                'materia_id' => $calculoII->id,
+                'gestion_id' => $gestion2024_2->id,
+                'codigo' => 'B',
+                'capacidad' => 35,
+            ];
+        }
+
+        // Grupos para Álgebra Lineal (2024-1)
+        if ($algebraLineal && $gestion2024_1) {
+            $grupos[] = [
+                'id' => (string) \Illuminate\Support\Str::uuid(),
+                'materia_id' => $algebraLineal->id,
                 'gestion_id' => $gestion2024_1->id,
                 'codigo' => 'A',
-                'capacidad' => 35,
+                'capacidad' => 40,
             ];
             $grupos[] = [
                 'id' => (string) \Illuminate\Support\Str::uuid(),
-                'materia_id' => $fisica->id,
+                'materia_id' => $algebraLineal->id,
                 'gestion_id' => $gestion2024_1->id,
-                'codigo' => 'LAB-1',
-                'capacidad' => 20,
+                'codigo' => 'B',
+                'capacidad' => 40,
             ];
         }
 
@@ -128,8 +139,26 @@ class GruposSeeder extends Seeder
                 'id' => (string) \Illuminate\Support\Str::uuid(),
                 'materia_id' => $introProg->id,
                 'gestion_id' => $gestion2024_1->id,
-                'codigo' => 'LAB-1',
-                'capacidad' => 25,
+                'codigo' => 'C',
+                'capacidad' => 30,
+            ];
+        }
+
+        // Grupos para Programación Avanzada (2024-2)
+        if ($progAvanzada && $gestion2024_2) {
+            $grupos[] = [
+                'id' => (string) \Illuminate\Support\Str::uuid(),
+                'materia_id' => $progAvanzada->id,
+                'gestion_id' => $gestion2024_2->id,
+                'codigo' => 'A',
+                'capacidad' => 30,
+            ];
+            $grupos[] = [
+                'id' => (string) \Illuminate\Support\Str::uuid(),
+                'materia_id' => $progAvanzada->id,
+                'gestion_id' => $gestion2024_2->id,
+                'codigo' => 'B',
+                'capacidad' => 30,
             ];
         }
 
@@ -146,26 +175,68 @@ class GruposSeeder extends Seeder
                 'id' => (string) \Illuminate\Support\Str::uuid(),
                 'materia_id' => $estructuras->id,
                 'gestion_id' => $gestion2024_2->id,
-                'codigo' => 'LAB-1',
-                'capacidad' => 20,
+                'codigo' => 'B',
+                'capacidad' => 30,
             ];
         }
 
-        // Grupos para Base de Datos (2024-2)
+        // Grupos para Base de Datos I (2024-1 y 2024-2)
+        if ($baseDatos && $gestion2024_1) {
+            $grupos[] = [
+                'id' => (string) \Illuminate\Support\Str::uuid(),
+                'materia_id' => $baseDatos->id,
+                'gestion_id' => $gestion2024_1->id,
+                'codigo' => 'A',
+                'capacidad' => 25,
+            ];
+        }
         if ($baseDatos && $gestion2024_2) {
             $grupos[] = [
                 'id' => (string) \Illuminate\Support\Str::uuid(),
                 'materia_id' => $baseDatos->id,
                 'gestion_id' => $gestion2024_2->id,
                 'codigo' => 'A',
-                'capacidad' => 35,
+                'capacidad' => 25,
             ];
             $grupos[] = [
                 'id' => (string) \Illuminate\Support\Str::uuid(),
                 'materia_id' => $baseDatos->id,
                 'gestion_id' => $gestion2024_2->id,
                 'codigo' => 'B',
-                'capacidad' => 35,
+                'capacidad' => 25,
+            ];
+        }
+
+        // Grupos para Ingeniería de Software I (2024-2)
+        if ($ingsoft && $gestion2024_2) {
+            $grupos[] = [
+                'id' => (string) \Illuminate\Support\Str::uuid(),
+                'materia_id' => $ingsoft->id,
+                'gestion_id' => $gestion2024_2->id,
+                'codigo' => 'A',
+                'capacidad' => 25,
+            ];
+        }
+
+        // Grupos para Desarrollo Web I (2024-2)
+        if ($webI && $gestion2024_2) {
+            $grupos[] = [
+                'id' => (string) \Illuminate\Support\Str::uuid(),
+                'materia_id' => $webI->id,
+                'gestion_id' => $gestion2024_2->id,
+                'codigo' => 'A',
+                'capacidad' => 25,
+            ];
+        }
+
+        // Grupos para Inteligencia Artificial (2024-2)
+        if ($ia && $gestion2024_2) {
+            $grupos[] = [
+                'id' => (string) \Illuminate\Support\Str::uuid(),
+                'materia_id' => $ia->id,
+                'gestion_id' => $gestion2024_2->id,
+                'codigo' => 'A',
+                'capacidad' => 20,
             ];
         }
 

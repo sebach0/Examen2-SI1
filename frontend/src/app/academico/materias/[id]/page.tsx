@@ -157,10 +157,10 @@ export default function MateriaFormPage() {
   if (loadingData) {
     return (
       <ProtectedLayout>
-        <div className="p-6">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
-            <p className="mt-2 text-gray-600">
+            <p className="mt-2 text-slate-300">
               Cargando datos de la materia...
             </p>
           </div>
@@ -181,19 +181,19 @@ export default function MateriaFormPage() {
 
   return (
     <ProtectedLayout>
-      <div className="p-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => router.push("/academico/materias")}
-            className="text-blue-600 hover:text-blue-800 mb-4 flex items-center gap-2"
+            className="text-blue-400 hover:text-blue-300 mb-4 flex items-center gap-2 transition-colors"
           >
             ← Volver a Materias
           </button>
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl font-bold text-slate-100">
             {isEdit ? "✏️ Editar Materia" : "➕ Nueva Materia"}
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-slate-400 mt-1">
             {isEdit
               ? "Modifica los datos de la materia"
               : "Completa el formulario para crear una nueva materia"}
@@ -203,12 +203,12 @@ export default function MateriaFormPage() {
         {/* Formulario */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-lg shadow-sm p-6"
+          className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl p-6"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Carrera */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Carrera *
               </label>
               <select
@@ -216,12 +216,18 @@ export default function MateriaFormPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, carrera_id: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 required
               >
-                <option value="">Selecciona una carrera</option>
+                <option value="" className="bg-slate-800">
+                  Selecciona una carrera
+                </option>
                 {carreras.map((carrera) => (
-                  <option key={carrera.id} value={carrera.id}>
+                  <option
+                    key={carrera.id}
+                    value={carrera.id}
+                    className="bg-slate-800"
+                  >
                     {carrera.nombre} ({carrera.codigo})
                   </option>
                 ))}
@@ -230,7 +236,7 @@ export default function MateriaFormPage() {
 
             {/* Código */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Código *
               </label>
               <input
@@ -242,7 +248,7 @@ export default function MateriaFormPage() {
                     codigo: e.target.value.toUpperCase(),
                   })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
+                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono transition-all placeholder:text-slate-500"
                 placeholder="Ej: MAT-101"
                 required
                 maxLength={20}
@@ -251,7 +257,7 @@ export default function MateriaFormPage() {
 
             {/* Nombre */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Nombre de la Materia *
               </label>
               <input
@@ -260,7 +266,7 @@ export default function MateriaFormPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, nombre: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-500"
                 placeholder="Ej: Cálculo Diferencial e Integral"
                 required
                 maxLength={150}
@@ -269,7 +275,7 @@ export default function MateriaFormPage() {
 
             {/* Créditos */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Créditos *
               </label>
               <input
@@ -281,7 +287,7 @@ export default function MateriaFormPage() {
                     creditos: parseInt(e.target.value) || 0,
                   })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 min={1}
                 max={20}
                 required
@@ -290,7 +296,7 @@ export default function MateriaFormPage() {
 
             {/* Horas Semanales */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Horas Semanales *
               </label>
               <input
@@ -302,7 +308,7 @@ export default function MateriaFormPage() {
                     horas_semanales: parseInt(e.target.value) || 0,
                   })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 min={1}
                 max={40}
                 required
@@ -312,12 +318,12 @@ export default function MateriaFormPage() {
 
           {/* Pre-requisitos */}
           <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Pre-requisitos (Materias que deben cursarse antes)
             </label>
-            <div className="border border-gray-300 rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto">
+            <div className="border border-slate-600 rounded-lg p-4 bg-slate-700/30 max-h-96 overflow-y-auto">
               {Object.keys(materiasPorCarrera).length === 0 ? (
-                <p className="text-gray-500 text-sm">
+                <p className="text-slate-400 text-sm">
                   No hay materias disponibles
                 </p>
               ) : (
@@ -325,15 +331,15 @@ export default function MateriaFormPage() {
                   ([carreraId, materias]) => {
                     const carrera = carreras.find((c) => c.id === carreraId);
                     return (
-                      <div key={carreraId} className="mb-4">
-                        <h4 className="font-semibold text-gray-700 mb-2 text-sm">
+                      <div key={carreraId} className="mb-4 last:mb-0">
+                        <h4 className="font-semibold text-slate-200 mb-2 text-sm">
                           {carrera?.nombre || "Sin carrera"}
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 ml-4">
                           {materias.map((materia) => (
                             <label
                               key={materia.id}
-                              className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 p-2 rounded"
+                              className="flex items-center space-x-2 cursor-pointer hover:bg-slate-600/30 p-2 rounded transition-colors"
                             >
                               <input
                                 type="checkbox"
@@ -343,10 +349,10 @@ export default function MateriaFormPage() {
                                 onChange={() =>
                                   handleRequisitoToggle(materia.id)
                                 }
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-slate-500 rounded bg-slate-600"
                               />
-                              <span className="text-sm text-gray-700">
-                                <span className="font-mono font-semibold">
+                              <span className="text-sm text-slate-300">
+                                <span className="font-mono font-semibold text-blue-400">
                                   {materia.codigo}
                                 </span>{" "}
                                 - {materia.nombre}
@@ -360,12 +366,12 @@ export default function MateriaFormPage() {
                 )
               )}
             </div>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-slate-400 mt-2">
               💡 Selecciona las materias que el estudiante debe haber aprobado
               antes de cursar esta materia
             </p>
             {formData.requisito_ids.length > 0 && (
-              <p className="text-sm text-blue-600 mt-2">
+              <p className="text-sm text-blue-400 mt-2">
                 ✓ {formData.requisito_ids.length} requisito(s) seleccionado(s)
               </p>
             )}
@@ -376,7 +382,7 @@ export default function MateriaFormPage() {
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
             >
               {loading
                 ? "Guardando..."
@@ -387,7 +393,7 @@ export default function MateriaFormPage() {
             <button
               type="button"
               onClick={() => router.push("/academico/materias")}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition-colors"
+              className="bg-slate-600 hover:bg-slate-500 text-slate-100 px-6 py-2 rounded-lg transition-all font-medium"
             >
               Cancelar
             </button>

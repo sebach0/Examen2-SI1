@@ -169,8 +169,10 @@ class GrupoController extends Controller
                 'materia:id,codigo,nombre,creditos,horas_semanales,carrera_id',
                 'materia.carrera:id,nombre,codigo',
                 'gestion:id,codigo,anio,periodo,fecha_inicio,fecha_fin',
+                'cargasDocentes:id,grupo_id,docente_id,horas_asignadas',
                 'cargasDocentes.docente:id,nombre,ci',
-                'horarios:id,dia_semana,hora_inicio,hora_fin',
+                'horarios:id,grupo_id,bloque_id,aula_id,tipo',
+                'horarios.bloque:id,dia_semana,hora_inicio,hora_fin',
                 'horarios.aula:id,nombre,codigo,capacidad'
             ])->findOrFail($id);
             

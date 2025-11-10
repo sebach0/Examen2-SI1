@@ -26,6 +26,23 @@ export function getAuthToken(): string | null {
 }
 
 /**
+ * Obtiene el usuario autenticado desde localStorage
+ * Client-side only
+ */
+export function getStoredUser(): Usuario | null {
+  if (typeof window === "undefined") return null;
+
+  const userJson = localStorage.getItem("auth_user");
+  if (!userJson) return null;
+
+  try {
+    return JSON.parse(userJson) as Usuario;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Verifica si el usuario tiene un rol específico
  */
 export function hasRole(user: Usuario, roleName: string): boolean {

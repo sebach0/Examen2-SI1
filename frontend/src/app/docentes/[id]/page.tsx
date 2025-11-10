@@ -151,10 +151,10 @@ export default function DocenteFormPage() {
   if (loadingData) {
     return (
       <ProtectedLayout>
-        <div className="p-6">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
-            <p className="mt-2 text-gray-600">Cargando datos del docente...</p>
+            <p className="mt-2 text-slate-300">Cargando datos del docente...</p>
           </div>
         </div>
       </ProtectedLayout>
@@ -163,19 +163,19 @@ export default function DocenteFormPage() {
 
   return (
     <ProtectedLayout>
-      <div className="p-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => router.push("/docentes")}
-            className="text-blue-600 hover:text-blue-800 mb-4 flex items-center gap-2"
+            className="text-blue-400 hover:text-blue-300 mb-4 flex items-center gap-2 transition-colors"
           >
             ← Volver a Docentes
           </button>
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl font-bold text-slate-100">
             {isEdit ? "✏️ Editar Docente" : "➕ Nuevo Docente"}
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-slate-400 mt-1">
             {isEdit
               ? "Modifica los datos del docente"
               : "Completa el formulario para crear un nuevo docente"}
@@ -185,12 +185,12 @@ export default function DocenteFormPage() {
         {/* Formulario */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-lg shadow-sm p-6"
+          className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl p-6"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* CI */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 CI *
               </label>
               <input
@@ -199,7 +199,7 @@ export default function DocenteFormPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, ci: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-500"
                 placeholder="Ej: 1234567"
                 required
               />
@@ -207,7 +207,7 @@ export default function DocenteFormPage() {
 
             {/* Nombre */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Nombre Completo *
               </label>
               <input
@@ -216,7 +216,7 @@ export default function DocenteFormPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, nombre: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-500"
                 placeholder="Ej: Juan Pérez"
                 required
               />
@@ -224,7 +224,7 @@ export default function DocenteFormPage() {
 
             {/* Teléfono */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Teléfono
               </label>
               <input
@@ -233,14 +233,14 @@ export default function DocenteFormPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, telefono: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-500"
                 placeholder="Ej: 77123456"
               />
             </div>
 
             {/* Username */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Usuario *
               </label>
               <input
@@ -249,7 +249,7 @@ export default function DocenteFormPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, username: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-500"
                 placeholder="Ej: jperez"
                 required
               />
@@ -257,7 +257,7 @@ export default function DocenteFormPage() {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Email *
               </label>
               <input
@@ -266,7 +266,7 @@ export default function DocenteFormPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-500"
                 placeholder="Ej: jperez@example.com"
                 required
               />
@@ -274,7 +274,7 @@ export default function DocenteFormPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Contraseña {isEdit ? "(dejar vacío para mantener actual)" : "*"}
               </label>
               <input
@@ -283,7 +283,7 @@ export default function DocenteFormPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-500"
                 placeholder="Mínimo 6 caracteres"
                 required={!isEdit}
                 minLength={6}
@@ -293,7 +293,7 @@ export default function DocenteFormPage() {
             {/* Estado (solo en edición) */}
             {isEdit && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Estado *
                 </label>
                 <select
@@ -304,10 +304,14 @@ export default function DocenteFormPage() {
                       estado: e.target.value as "activo" | "suspendido",
                     })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 >
-                  <option value="activo">Activo</option>
-                  <option value="suspendido">Suspendido</option>
+                  <option value="activo" className="bg-slate-800">
+                    Activo
+                  </option>
+                  <option value="suspendido" className="bg-slate-800">
+                    Suspendido
+                  </option>
                 </select>
               </div>
             )}
@@ -315,33 +319,33 @@ export default function DocenteFormPage() {
 
           {/* Roles */}
           <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Roles del Sistema
             </label>
-            <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+            <div className="border border-slate-600 rounded-lg p-4 bg-slate-700/30">
               {roles.length === 0 ? (
-                <p className="text-gray-500 text-sm">Cargando roles...</p>
+                <p className="text-slate-400 text-sm">Cargando roles...</p>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {roles.map((rol) => (
                     <label
                       key={rol.id}
-                      className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 p-2 rounded"
+                      className="flex items-center space-x-2 cursor-pointer hover:bg-slate-600/30 p-2 rounded transition-colors"
                     >
                       <input
                         type="checkbox"
                         checked={formData.rol_ids.includes(rol.id)}
                         onChange={() => handleRoleToggle(rol.id)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-blue-500 focus:ring-blue-500 border-slate-500 rounded bg-slate-600"
                       />
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm text-slate-300">
                         {rol.nombre}
                       </span>
                     </label>
                   ))}
                 </div>
               )}
-              <p className="text-xs text-gray-500 mt-3">
+              <p className="text-xs text-slate-400 mt-3">
                 💡 Si no seleccionas ningún rol, se asignará automáticamente el
                 rol "docente"
               </p>
@@ -353,7 +357,7 @@ export default function DocenteFormPage() {
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
             >
               {loading
                 ? "Guardando..."
@@ -364,7 +368,7 @@ export default function DocenteFormPage() {
             <button
               type="button"
               onClick={() => router.push("/docentes")}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition-colors"
+              className="bg-slate-600 hover:bg-slate-500 text-slate-100 px-6 py-2 rounded-lg transition-all font-medium"
             >
               Cancelar
             </button>

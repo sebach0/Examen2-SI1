@@ -191,19 +191,19 @@ export default function BloqueFormPage() {
 
   return (
     <ProtectedLayout>
-      <div className="p-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => router.push("/horarios/bloques")}
-            className="text-blue-500 hover:text-blue-700 mb-2 flex items-center gap-1"
+            className="text-blue-400 hover:text-blue-300 mb-2 flex items-center gap-1 transition-colors"
           >
             ← Volver a Bloques Horarios
           </button>
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl font-bold text-slate-100">
             {isEditing ? "✏️ Editar Bloque Horario" : "➕ Nuevo Bloque Horario"}
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-slate-400 mt-1">
             {isEditing
               ? "Modifica los datos del bloque horario"
               : "Completa los datos para crear un nuevo bloque horario"}
@@ -211,46 +211,52 @@ export default function BloqueFormPage() {
         </div>
 
         {/* Formulario */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl p-6">
           {loading && !isEditing ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
-              <p className="mt-2 text-gray-600">Cargando...</p>
+              <p className="mt-2 text-slate-300">Cargando...</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Error general */}
               {errors.general && (
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                <div className="bg-red-900/30 border-l-4 border-red-500 p-4 rounded">
                   <div className="flex items-start">
-                    <span className="text-red-500 text-xl mr-2">⚠️</span>
-                    <p className="text-red-700">{errors.general}</p>
+                    <span className="text-red-400 text-xl mr-2">⚠️</span>
+                    <p className="text-red-200">{errors.general}</p>
                   </div>
                 </div>
               )}
 
               {/* Día de la semana */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Día de la Semana *
                 </label>
                 <select
                   name="dia_semana"
                   value={formData.dia_semana}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.dia_semana ? "border-red-500" : "border-gray-300"
+                  className={`w-full px-4 py-2 bg-slate-700/50 border text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                    errors.dia_semana ? "border-red-500" : "border-slate-600"
                   }`}
                 >
-                  <option value="">Selecciona un día</option>
+                  <option value="" className="bg-slate-800">
+                    Selecciona un día
+                  </option>
                   {dias.map((dia) => (
-                    <option key={dia.value} value={dia.value}>
+                    <option
+                      key={dia.value}
+                      value={dia.value}
+                      className="bg-slate-800"
+                    >
                       {getDiaIcono(dia.value)} {dia.label}
                     </option>
                   ))}
                 </select>
                 {errors.dia_semana && (
-                  <p className="mt-1 text-sm text-red-600">
+                  <p className="mt-1 text-sm text-red-400">
                     {errors.dia_semana}
                   </p>
                 )}
@@ -260,7 +266,7 @@ export default function BloqueFormPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Hora Inicio */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     🕐 Hora de Inicio *
                   </label>
                   <input
@@ -268,23 +274,23 @@ export default function BloqueFormPage() {
                     name="hora_inicio"
                     value={formData.hora_inicio}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.hora_inicio ? "border-red-500" : "border-gray-300"
+                    className={`w-full px-4 py-2 bg-slate-700/50 border text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                      errors.hora_inicio ? "border-red-500" : "border-slate-600"
                     }`}
                   />
                   {errors.hora_inicio && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p className="mt-1 text-sm text-red-400">
                       {errors.hora_inicio}
                     </p>
                   )}
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-slate-400">
                     Formato: HH:MM (ej. 08:00)
                   </p>
                 </div>
 
                 {/* Hora Fin */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
                     🕐 Hora de Fin *
                   </label>
                   <input
@@ -292,16 +298,16 @@ export default function BloqueFormPage() {
                     name="hora_fin"
                     value={formData.hora_fin}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.hora_fin ? "border-red-500" : "border-gray-300"
+                    className={`w-full px-4 py-2 bg-slate-700/50 border text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                      errors.hora_fin ? "border-red-500" : "border-slate-600"
                     }`}
                   />
                   {errors.hora_fin && (
-                    <p className="mt-1 text-sm text-red-600">
+                    <p className="mt-1 text-sm text-red-400">
                       {errors.hora_fin}
                     </p>
                   )}
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-slate-400">
                     Formato: HH:MM (ej. 09:30)
                   </p>
                 </div>
@@ -309,14 +315,14 @@ export default function BloqueFormPage() {
 
               {/* Duración calculada */}
               {calcularDuracion() && (
-                <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <div className="bg-blue-900/30 border-l-4 border-blue-500 p-4 rounded">
                   <div className="flex items-center">
-                    <span className="text-blue-500 text-xl mr-2">⏱️</span>
+                    <span className="text-blue-400 text-xl mr-2">⏱️</span>
                     <div>
-                      <p className="text-sm font-medium text-blue-800">
+                      <p className="text-sm font-medium text-blue-300">
                         Duración del bloque
                       </p>
-                      <p className="text-lg font-semibold text-blue-900">
+                      <p className="text-lg font-semibold text-blue-200">
                         {calcularDuracion()}
                       </p>
                     </div>
@@ -329,14 +335,14 @@ export default function BloqueFormPage() {
                 <button
                   type="button"
                   onClick={() => router.push("/horarios/bloques")}
-                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="px-6 py-2 bg-slate-600 hover:bg-slate-500 text-slate-100 rounded-lg transition-all font-medium"
                   disabled={loading}
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium"
                   disabled={loading}
                 >
                   {loading ? (
@@ -354,11 +360,11 @@ export default function BloqueFormPage() {
         </div>
 
         {/* Info adicional */}
-        <div className="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+        <div className="mt-6 bg-yellow-900/30 border-l-4 border-yellow-600/50 p-4 rounded">
           <div className="flex">
             <span className="text-yellow-400 text-xl mr-2">💡</span>
             <div>
-              <p className="text-sm text-yellow-800">
+              <p className="text-sm text-yellow-200">
                 <strong>Importante:</strong> El sistema validará automáticamente
                 que no haya solapamiento de horarios para el mismo día.
                 Asegúrate de que las horas no se crucen con bloques existentes.

@@ -76,12 +76,11 @@ return new class extends Migration
         // Relación many-to-many entre usuario y rol
         // Un usuario puede tener múltiples roles (ej: admin + docente)
         Schema::create('usuario_rol', function (Blueprint $table) {
-            $table->uuid('id')->primary();
             $table->uuid('usuario_id')->comment('FK: ID del usuario');
             $table->uuid('rol_id')->comment('FK: ID del rol');
 
-            // Índice único compuesto: Un usuario no puede tener el mismo rol duplicado
-            $table->unique(['usuario_id', 'rol_id'], 'unico_usuario_rol');
+            // Clave primaria compuesta
+            $table->primary(['usuario_id', 'rol_id']);
 
             // Claves foráneas con CASCADE DELETE
             // Si borras un usuario → borra automáticamente sus relaciones en usuario_rol
@@ -99,12 +98,11 @@ return new class extends Migration
         // Relación many-to-many entre rol y permiso
         // Un rol puede tener muchos permisos
         Schema::create('rol_permiso', function (Blueprint $table) {
-            $table->uuid('id')->primary();
             $table->uuid('rol_id')->comment('FK: ID del rol');
             $table->uuid('permiso_id')->comment('FK: ID del permiso');
 
-            // Índice único: Un rol no puede tener el mismo permiso duplicado
-            $table->unique(['rol_id', 'permiso_id'], 'unico_rol_permiso');
+            // Clave primaria compuesta
+            $table->primary(['rol_id', 'permiso_id']);
 
             // Claves foráneas
             $table->foreign('rol_id')
