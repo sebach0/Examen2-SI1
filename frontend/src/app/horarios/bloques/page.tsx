@@ -128,11 +128,30 @@ export default function BloquesPage() {
   };
 
   const formatearHora = (hora: string) => {
-    // Si ya viene en formato HH:MM, retornarlo directamente
-    if (hora.includes(":")) {
-      return hora.substring(0, 5); // Tomar solo HH:MM
+    if (!hora) return '';
+    
+    try {
+      // Crear objeto Date desde el string ISO
+      const date = new Date(hora);
+      
+      // Verificar que es una fecha válida
+      if (isNaN(date.getTime())) {
+        // Si no es fecha válida, intentar extraer HH:MM si existe
+        if (hora.includes(':')) {
+          return hora.substring(0, 5);
+        }
+        return hora;
+      }
+      
+      // Extraer horas y minutos en hora local
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+      
+    } catch (error) {
+      console.error('Error formateando hora:', error, hora);
+      return hora;
     }
-    return hora;
   };
 
   return (
@@ -251,13 +270,21 @@ export default function BloquesPage() {
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
                         ⏱️{" "}
                         {(() => {
-                          const inicio = new Date(
-                            `2000-01-01T${bloque.hora_inicio}`
-                          );
-                          const fin = new Date(`2000-01-01T${bloque.hora_fin}`);
-                          const diffMs = fin.getTime() - inicio.getTime();
-                          const minutos = Math.floor(diffMs / 60000);
-                          return `${minutos} min`;
+                          try {
+                            const inicio = new Date(bloque.hora_inicio);
+                            const fin = new Date(bloque.hora_fin);
+                            const diffMs = fin.getTime() - inicio.getTime();
+                            const minutos = Math.floor(diffMs / 60000);
+                            const horas = Math.floor(minutos / 60);
+                            const mins = minutos % 60;
+                            
+                            if (horas > 0) {
+                              return `${horas}h ${mins}min`;
+                            }
+                            return `${mins} min`;
+                          } catch {
+                            return 'N/A';
+                          }
                         })()}
                       </span>
                     </td>

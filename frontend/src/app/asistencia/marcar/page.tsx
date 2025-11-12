@@ -166,6 +166,19 @@ export default function MarcarAsistenciaPage() {
     return dias[dia] || "N/A";
   };
 
+  const formatearHora = (hora: string) => {
+    if (!hora) return '';
+    try {
+      const date = new Date(hora);
+      if (isNaN(date.getTime())) return hora;
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    } catch {
+      return hora;
+    }
+  };
+
   return (
     <ProtectedLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 space-y-6">
@@ -284,7 +297,7 @@ export default function MarcarAsistenciaPage() {
                 <option value="">Seleccione bloque</option>
                 {bloques.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {getDiaNombre(b.dia_semana)} {b.hora_inicio} - {b.hora_fin}
+                    {getDiaNombre(b.dia_semana)} {formatearHora(b.hora_inicio)} - {formatearHora(b.hora_fin)}
                   </option>
                 ))}
               </select>
@@ -430,8 +443,7 @@ export default function MarcarAsistenciaPage() {
                   <option value="">Seleccione bloque</option>
                   {bloques.map((b) => (
                     <option key={b.id} value={b.id}>
-                      {getDiaNombre(b.dia_semana)} {b.hora_inicio} -{" "}
-                      {b.hora_fin}
+                      {getDiaNombre(b.dia_semana)} {formatearHora(b.hora_inicio)} - {formatearHora(b.hora_fin)}
                     </option>
                   ))}
                 </select>

@@ -20,6 +20,15 @@ import { getDocentes } from "@/services/docente.service";
 import { getGrupos } from "@/services/grupo.service";
 import type { Asistencia, Docente, Grupo } from "@/types";
 
+// Función para formatear hora ISO a HH:MM
+const formatearHora = (fechaISO: string): string => {
+  if (!fechaISO) return "";
+  const fecha = new Date(fechaISO);
+  const horas = fecha.getHours().toString().padStart(2, "0");
+  const minutos = fecha.getMinutes().toString().padStart(2, "0");
+  return `${horas}:${minutos}`;
+};
+
 export default function ReportesPage() {
   const [asistencias, setAsistencias] = useState<Asistencia[]>([]);
   const [estadisticas, setEstadisticas] =
@@ -326,7 +335,9 @@ export default function ReportesPage() {
                         {a.grupo?.codigo || "N/A"}
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-400">
-                        {a.bloque?.hora_inicio || "N/A"}
+                        {a.bloque?.hora_inicio && a.bloque?.hora_fin
+                          ? `${formatearHora(a.bloque.hora_inicio)} - ${formatearHora(a.bloque.hora_fin)}`
+                          : "N/A"}
                       </td>
                       <td className="px-6 py-4">{getEstadoBadge(a.estado)}</td>
                       <td className="px-6 py-4 text-sm text-slate-400">

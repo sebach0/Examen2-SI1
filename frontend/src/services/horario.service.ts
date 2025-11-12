@@ -37,14 +37,29 @@ export const getHorariosByAula = async (
 export const createHorario = async (
   horario: CreateHorarioData
 ): Promise<HorarioGrupo> => {
-  return api.post<HorarioGrupo>("/horarios-grupo", horario);
+  // Convertir campos al formato que espera el backend
+  const payload = {
+    grupo_id: horario.grupo_id,
+    bloque_horario_id: horario.bloque_id,
+    aula_id: horario.aula_id,
+    tipo: horario.tipo,
+  };
+  return api.post<HorarioGrupo>("/horarios-grupo", payload);
 };
 
 export const updateHorario = async (
   id: string,
   horario: Partial<CreateHorarioData>
 ): Promise<HorarioGrupo> => {
-  return api.put<HorarioGrupo>(`/horarios-grupo/${id}`, horario);
+  // Convertir campos al formato que espera el backend
+  const payload: any = {
+    ...horario,
+  };
+  if (horario.bloque_id) {
+    payload.bloque_horario_id = horario.bloque_id;
+    delete payload.bloque_id;
+  }
+  return api.put<HorarioGrupo>(`/horarios-grupo/${id}`, payload);
 };
 
 export const deleteHorario = async (id: string): Promise<void> => {
@@ -64,6 +79,13 @@ export const verificarConflictos = async (
     horario?: HorarioGrupo;
   }>;
 }> => {
+  // Convertir bloque_id a bloque_horario_id para el backend
+  const payload = {
+    grupo_id: data.grupo_id,
+    bloque_horario_id: data.bloque_id,
+    aula_id: data.aula_id,
+  };
+  
   return api.post<{
     tiene_conflicto: boolean;
     conflictos: Array<{
@@ -71,5 +93,5 @@ export const verificarConflictos = async (
       mensaje: string;
       horario?: HorarioGrupo;
     }>;
-  }>("/horarios-grupo/verificar-conflictos", data);
+  }>("/horarios-grupo/verificar-conflictos", payload);
 };

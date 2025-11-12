@@ -78,7 +78,7 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Bienvenido</h1>
-          <p className="text-gray-600">Sistema de Control de Asistencia</p>
+          <p className="text-gray-800">Sistema de Control de Asistencia</p>
         </div>
 
         {/* Error message */}
@@ -94,7 +94,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="username"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-900 mb-2"
             >
               Usuario
             </label>
@@ -102,7 +102,7 @@ export default function LoginPage() {
               {...register("username")}
               type="text"
               id="username"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 placeholder-gray-500"
               placeholder="Ingresa tu usuario"
               disabled={isLoading}
             />
@@ -117,7 +117,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-900 mb-2"
             >
               Contraseña
             </label>
@@ -125,7 +125,7 @@ export default function LoginPage() {
               {...register("password")}
               type="password"
               id="password"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 placeholder-gray-500"
               placeholder="••••••••"
               disabled={isLoading}
             />
@@ -145,7 +145,7 @@ export default function LoginPage() {
               className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               disabled={isLoading}
             />
-            <label htmlFor="remember" className="ml-2 text-sm text-gray-700">
+            <label htmlFor="remember" className="ml-2 text-sm text-gray-900">
               Recordarme
             </label>
           </div>

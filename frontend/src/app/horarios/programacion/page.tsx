@@ -65,6 +65,19 @@ export default function ProgramacionPage() {
     return dias[dia] || "N/A";
   };
 
+  const formatearHora = (hora: string) => {
+    if (!hora) return '';
+    try {
+      const date = new Date(hora);
+      if (isNaN(date.getTime())) return hora;
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    } catch {
+      return hora;
+    }
+  };
+
   const getTipoBadge = (tipo: string) => {
     const tipos = {
       teorico: { bg: "bg-blue-500/20", text: "text-blue-300", icon: "📚" },
@@ -175,9 +188,7 @@ export default function ProgramacionPage() {
                       </td>
                       <td className="px-6 py-4 text-sm text-slate-200">
                         {horario.bloque?.dia_semana
-                          ? `${getDiaNombre(horario.bloque.dia_semana)} ${
-                              horario.bloque.hora_inicio
-                            }`
+                          ? `${getDiaNombre(horario.bloque.dia_semana)} ${formatearHora(horario.bloque.hora_inicio)}`
                           : "N/A"}
                       </td>
                       <td className="px-6 py-4 text-sm font-mono text-green-400">

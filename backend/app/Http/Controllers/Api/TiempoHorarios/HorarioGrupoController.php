@@ -148,8 +148,11 @@ class HorarioGrupoController extends Controller
 
             $conflictos = [];
 
+            // Usar bloque_id para las queries (nombre real de la columna)
+            $bloqueId = $request->bloque_horario_id;
+
             // Verificar conflicto de aula (mismo bloque, misma aula)
-            $conflictoAula = HorarioGrupo::where('bloque_horario_id', $request->bloque_horario_id)
+            $conflictoAula = HorarioGrupo::where('bloque_id', $bloqueId)
                 ->where('aula_id', $request->aula_id)
                 ->when($request->filled('excluir_id'), function ($q) use ($request) {
                     $q->where('id', '!=', $request->excluir_id);
@@ -166,7 +169,7 @@ class HorarioGrupoController extends Controller
             }
 
             // Verificar conflicto de grupo (mismo bloque, mismo grupo)
-            $conflictoGrupo = HorarioGrupo::where('bloque_horario_id', $request->bloque_horario_id)
+            $conflictoGrupo = HorarioGrupo::where('bloque_id', $bloqueId)
                 ->where('grupo_id', $request->grupo_id)
                 ->when($request->filled('excluir_id'), function ($q) use ($request) {
                     $q->where('id', '!=', $request->excluir_id);
@@ -228,8 +231,12 @@ class HorarioGrupoController extends Controller
                 ], 422);
             }
 
-            // Crear el horario de grupo
-            $horario = HorarioGrupo::create($request->all());
+            // Crear el horario de grupo - convertir bloque_horario_id a bloque_id
+            $data = $request->all();
+            $data['bloque_id'] = $data['bloque_horario_id'];
+            unset($data['bloque_horario_id']);
+            
+            $horario = HorarioGrupo::create($data);
             $horario->load(['grupo.materia', 'bloque', 'aula.edificio']);
 
             $this->logCrear('horario_grupo', $horario);
@@ -301,7 +308,7 @@ class HorarioGrupoController extends Controller
             if ($request->hasAny(['grupo_id', 'bloque_horario_id', 'aula_id'])) {
                 $requestConflictos = new Request([
                     'grupo_id' => $request->get('grupo_id', $horario->grupo_id),
-                    'bloque_horario_id' => $request->get('bloque_horario_id', $horario->bloque_horario_id),
+                    'bloque_horario_id' => $request->get('bloque_horario_id', $horario->bloque_id),
                     'aula_id' => $request->get('aula_id', $horario->aula_id),
                     'excluir_id' => $id
                 ]);
@@ -319,8 +326,14 @@ class HorarioGrupoController extends Controller
 
             $datosAnteriores = $horario->toArray();
 
-            // Actualizar el horario de grupo
-            $horario->update($request->all());
+            // Actualizar el horario de grupo - convertir bloque_horario_id a bloque_id si viene
+            $data = $request->all();
+            if (isset($data['bloque_horario_id'])) {
+                $data['bloque_id'] = $data['bloque_horario_id'];
+                unset($data['bloque_horario_id']);
+            }
+            
+            $horario->update($data);
             $horario->load(['grupo.materia', 'bloque', 'aula.edificio']);
 
             $this->logActualizar('horario_grupo', $horario->id);

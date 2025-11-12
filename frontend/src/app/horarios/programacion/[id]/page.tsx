@@ -42,7 +42,7 @@ export default function ProgramacionFormPage() {
     grupo_id: "",
     bloque_id: "",
     aula_id: "",
-    tipo: "teorico",
+    tipo: "teorica",
   });
 
   useEffect(() => {
@@ -136,6 +136,19 @@ export default function ProgramacionFormPage() {
     return dias[dia] || "N/A";
   };
 
+  const formatearHora = (hora: string) => {
+    if (!hora) return '';
+    try {
+      const date = new Date(hora);
+      if (isNaN(date.getTime())) return hora;
+      const hours = date.getHours().toString().padStart(2, '0');
+      const minutes = date.getMinutes().toString().padStart(2, '0');
+      return `${hours}:${minutes}`;
+    } catch {
+      return hora;
+    }
+  };
+
   return (
     <ProtectedLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
@@ -191,8 +204,7 @@ export default function ProgramacionFormPage() {
                   <option value="">Seleccione un bloque</option>
                   {bloques.map((b) => (
                     <option key={b.id} value={b.id}>
-                      {getDiaNombre(b.dia_semana)} {b.hora_inicio} -{" "}
-                      {b.hora_fin}
+                      {getDiaNombre(b.dia_semana)} {formatearHora(b.hora_inicio)} - {formatearHora(b.hora_fin)}
                     </option>
                   ))}
                 </select>
@@ -234,8 +246,8 @@ export default function ProgramacionFormPage() {
                   required
                   className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="teorico">📚 Teórico</option>
-                  <option value="practico">⚙️ Práctico</option>
+                  <option value="teorica">📚 Teórico</option>
+                  <option value="practica">⚙️ Práctico</option>
                   <option value="laboratorio">🔬 Laboratorio</option>
                 </select>
               </div>

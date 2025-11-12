@@ -101,10 +101,34 @@ export class ApiClient {
 
       // Si no es exitoso, lanzar error
       if (!response.ok) {
-        const error: ApiError = await response.json().catch(() => ({
-          message: "Error desconocido",
+        let error: ApiError;
+        const contentType = response.headers.get("content-type");
+        
+        try {
+          if (contentType && contentType.includes("application/json")) {
+            error = await response.json();
+          } else {
+            const text = await response.text();
+            error = {
+              message: text || `Error HTTP ${response.status}`,
+              status: response.status,
+            };
+          }
+        } catch (e) {
+          error = {
+            message: `Error HTTP ${response.status}`,
+            status: response.status,
+          };
+        }
+
+        // Log para depuración
+        console.error("API Error:", {
           status: response.status,
-        }));
+          statusText: response.statusText,
+          url,
+          error,
+          token: token ? "presente" : "ausente",
+        });
 
         throw {
           ...error,
