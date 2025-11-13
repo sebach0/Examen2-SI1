@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import {
   getBloques,
   deleteBloque,
@@ -160,8 +161,9 @@ export default function BloquesPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-slate-100">
-              ⏰ Gestión de Bloques Horarios
+            <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+              <Icon name="clock" className="text-blue-400" size={32} />
+              Gestión de Bloques Horarios
             </h1>
             <p className="text-slate-400 mt-1">
               Administra los períodos de tiempo para las clases
@@ -171,7 +173,7 @@ export default function BloquesPage() {
             onClick={() => router.push("/horarios/bloques/nuevo")}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-glow"
           >
-            <span>➕</span>
+            <Icon name="add" size={20} />
             Nuevo Bloque
           </button>
         </div>
@@ -182,7 +184,7 @@ export default function BloquesPage() {
             <div className="flex gap-4">
               <input
                 type="text"
-                placeholder="🔍 Buscar por hora..."
+                placeholder="Buscar por hora..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="flex-1 px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-100 placeholder-slate-400"
@@ -253,22 +255,25 @@ export default function BloquesPage() {
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDiaColor(
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium gap-1.5 ${getDiaColor(
                           bloque.dia_semana
                         )}`}
                       >
-                        📅 {getNombreDia(bloque.dia_semana)}
+                        <Icon name="calendar" size={12} />
+                        {getNombreDia(bloque.dia_semana)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-blue-400">
-                      🕐 {formatearHora(bloque.hora_inicio)}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-blue-400 flex items-center gap-1.5">
+                      <Icon name="clock" size={14} />
+                      {formatearHora(bloque.hora_inicio)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-blue-400">
-                      🕐 {formatearHora(bloque.hora_fin)}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-blue-400 flex items-center gap-1.5">
+                      <Icon name="clock" size={14} />
+                      {formatearHora(bloque.hora_fin)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-                        ⏱️{" "}
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 gap-1.5">
+                        <Icon name="clock" size={12} />
                         {(() => {
                           try {
                             const inicio = new Date(bloque.hora_inicio);
@@ -293,9 +298,10 @@ export default function BloquesPage() {
                         onClick={() =>
                           router.push(`/horarios/bloques/${bloque.id}`)
                         }
-                        className="text-blue-400 hover:text-blue-300 mr-3 transition-colors"
+                        className="text-blue-400 hover:text-blue-300 mr-3 transition-colors flex items-center gap-1.5"
                       >
-                        ✏️ Editar
+                        <Icon name="edit" size={16} />
+                        Editar
                       </button>
                       <button
                         onClick={() =>
@@ -306,9 +312,10 @@ export default function BloquesPage() {
                             )}-${formatearHora(bloque.hora_fin)}`
                           )
                         }
-                        className="text-red-400 hover:text-red-300 transition-colors"
+                        className="text-red-400 hover:text-red-300 transition-colors flex items-center gap-1.5"
                       >
-                        🗑️ Eliminar
+                        <Icon name="delete" size={16} />
+                        Eliminar
                       </button>
                     </td>
                   </tr>

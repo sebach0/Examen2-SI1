@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import {
   getAulas,
   deleteAula,
@@ -129,7 +130,7 @@ export default function AulasPage() {
 
   const getTipoIcon = (tipo: string) => {
     const icons: Record<string, string> = {
-      aula: "🏫",
+      aula: "classroom",
       laboratorio: "🔬",
       auditorio: "🎭",
       "sala de cómputo": "💻",
@@ -166,7 +167,7 @@ export default function AulasPage() {
             <div className="flex gap-4">
               <input
                 type="text"
-                placeholder="🔍 Buscar por código o nombre de aula..."
+                placeholder="Buscar por código o nombre de aula..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="flex-1 px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-100 placeholder-slate-400"
@@ -270,7 +271,10 @@ export default function AulasPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-                        👥 {aula.capacidad}
+                        <span className="inline-flex items-center gap-1.5">
+                          <Icon name="users" size={14} />
+                          {aula.capacidad}
+                        </span>
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -278,7 +282,8 @@ export default function AulasPage() {
                         onClick={() => router.push(`/infra/aulas/${aula.id}`)}
                         className="text-blue-400 hover:text-blue-300 mr-3 transition-colors"
                       >
-                        ✏️ Editar
+                        <Icon name="edit" size={16} />
+                        Editar
                       </button>
                       <button
                         onClick={() =>
@@ -290,7 +295,8 @@ export default function AulasPage() {
                         }
                         className="text-red-400 hover:text-red-300 transition-colors"
                       >
-                        🗑️ Eliminar
+                        <Icon name="delete" size={16} />
+                        Eliminar
                       </button>
                     </td>
                   </tr>

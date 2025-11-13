@@ -9,6 +9,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import {
   getHorarioById,
   createHorario,
@@ -154,8 +155,18 @@ export default function ProgramacionFormPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-slate-100">
-              {isEditing ? "✏️ Editar" : "➕ Nuevo"} Horario
+            <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+              {isEditing ? (
+                <>
+                  <Icon name="edit" className="text-blue-400" size={32} />
+                  Editar Horario
+                </>
+              ) : (
+                <>
+                  <Icon name="add" className="text-green-400" size={32} />
+                  Nuevo Horario
+                </>
+              )}
             </h1>
             <p className="text-slate-400 mt-1">
               Programar clase en bloque y aula

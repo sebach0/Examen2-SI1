@@ -9,6 +9,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import { getGestiones, deleteGestion } from "@/services/gestion.service";
 import type { Gestion } from "@/types";
 
@@ -78,7 +79,8 @@ export default function GestionesPage() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-slate-100">
-              📅 Gestiones Académicas
+              <Icon name="calendar" className="text-blue-400" size={32} />
+              Gestiones Académicas
             </h1>
             <p className="text-slate-400 mt-1">
               Gestiona los periodos académicos del sistema
@@ -88,7 +90,8 @@ export default function GestionesPage() {
             onClick={() => router.push("/academico/gestiones/nuevo")}
             className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg transition-colors font-medium flex items-center gap-2"
           >
-            ➕ Nueva Gestión
+            <Icon name="add" size={20} />
+            Nueva Gestión
           </button>
         </div>
 
@@ -186,7 +189,7 @@ export default function GestionesPage() {
                           className="text-blue-400 hover:text-blue-300 transition-colors"
                           title="Editar"
                         >
-                          ✏️
+                          <Icon name="edit" size={16} />
                         </button>
                         <button
                           onClick={() =>
@@ -195,7 +198,7 @@ export default function GestionesPage() {
                           className="text-red-400 hover:text-red-300 transition-colors"
                           title="Eliminar"
                         >
-                          🗑️
+                          <Icon name="delete" size={16} />
                         </button>
                       </td>
                     </tr>

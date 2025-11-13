@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import {
   getGrupos,
   deleteGrupo,
@@ -137,7 +138,8 @@ export default function GruposPage() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold text-slate-100">
-              👥 Gestión de Grupos
+              <Icon name="users" className="text-blue-400" size={32} />
+              Gestión de Grupos
             </h1>
             <p className="text-slate-400 mt-1">
               Administra los grupos/paralelos de cada materia
@@ -147,7 +149,7 @@ export default function GruposPage() {
             onClick={() => router.push("/academico/grupos/nuevo")}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-glow"
           >
-            <span>➕</span>
+            <Icon name="add" size={20} />
             Nuevo Grupo
           </button>
         </div>
@@ -158,7 +160,7 @@ export default function GruposPage() {
             <div className="flex gap-4">
               <input
                 type="text"
-                placeholder="🔍 Buscar por código de grupo o materia..."
+                placeholder="Buscar por código de grupo o materia..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="flex-1 px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-100 placeholder-slate-400"
@@ -275,7 +277,10 @@ export default function GruposPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-300">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
-                        👥 {grupo.capacidad}
+                        <span className="inline-flex items-center gap-1.5">
+                          <Icon name="users" size={14} />
+                          {grupo.capacidad}
+                        </span>
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -285,7 +290,8 @@ export default function GruposPage() {
                         }
                         className="text-blue-400 hover:text-blue-300 mr-3 transition-colors"
                       >
-                        ✏️ Editar
+                        <Icon name="edit" size={16} />
+                        Editar
                       </button>
                       <button
                         onClick={() =>
@@ -297,7 +303,8 @@ export default function GruposPage() {
                         }
                         className="text-red-400 hover:text-red-300 transition-colors"
                       >
-                        🗑️ Eliminar
+                        <Icon name="delete" size={16} />
+                        Eliminar
                       </button>
                     </td>
                   </tr>

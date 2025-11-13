@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import {
   getBloqueById,
   createBloque,
@@ -213,8 +214,18 @@ export default function BloqueFormPage() {
           >
             ← Volver a Bloques Horarios
           </button>
-          <h1 className="text-3xl font-bold text-slate-100">
-            {isEditing ? "✏️ Editar Bloque Horario" : "➕ Nuevo Bloque Horario"}
+          <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+            {isEditing ? (
+              <>
+                <Icon name="edit" className="text-blue-400" size={32} />
+                Editar Bloque Horario
+              </>
+            ) : (
+              <>
+                <Icon name="add" className="text-green-400" size={32} />
+                Nuevo Bloque Horario
+              </>
+            )}
           </h1>
           <p className="text-slate-400 mt-1">
             {isEditing

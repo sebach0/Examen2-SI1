@@ -7,6 +7,7 @@
  */
 
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 
 export default function DashboardPage() {
   return (
@@ -27,7 +28,7 @@ export default function DashboardPage() {
             value="48"
             change="+12%"
             trend="up"
-            icon="✅"
+            icon="check"
             color="blue"
           />
           <StatCard
@@ -35,7 +36,7 @@ export default function DashboardPage() {
             value="23"
             change="+3"
             trend="up"
-            icon="👥"
+            icon="users"
             color="green"
           />
           <StatCard
@@ -43,7 +44,7 @@ export default function DashboardPage() {
             value="67"
             change="0"
             trend="neutral"
-            icon="👨‍🏫"
+            icon="user"
             color="purple"
           />
           <StatCard
@@ -51,7 +52,7 @@ export default function DashboardPage() {
             value="5"
             change="-2"
             trend="down"
-            icon="⚠️"
+            icon="alert"
             color="red"
           />
         </div>
@@ -65,21 +66,21 @@ export default function DashboardPage() {
             <QuickAction
               title="Marcar Asistencia"
               description="Registra tu asistencia con QR"
-              icon="✅"
+              icon="check"
               href="/asistencia/marcar"
               color="blue"
             />
             <QuickAction
               title="Ver Horarios"
               description="Consulta tu horario semanal"
-              icon="📅"
+              icon="calendar"
               href="/horarios/programacion"
               color="green"
             />
             <QuickAction
               title="Reportes"
               description="Genera reportes de asistencia"
-              icon="📊"
+              icon="chart"
               href="/asistencia/reportes"
               color="purple"
             />
@@ -93,19 +94,19 @@ export default function DashboardPage() {
           </h2>
           <div className="space-y-4">
             <ActivityItem
-              icon="✅"
+              icon="check"
               title="Asistencia registrada"
               description="Cálculo I - Grupo A - 08:00"
               time="Hace 2 horas"
             />
             <ActivityItem
-              icon="👥"
+              icon="users"
               title="Nuevo grupo creado"
               description="Física II - Grupo B"
               time="Hace 5 horas"
             />
             <ActivityItem
-              icon="📅"
+              icon="calendar"
               title="Horario actualizado"
               description="Cambio en Laboratorio de Programación"
               time="Ayer"
@@ -150,7 +151,7 @@ function StatCard({
     <div className="glass rounded-lg p-6 border border-slate-700">
       <div className="flex items-center justify-between">
         <div className={`p-3 rounded-lg ${colorClasses}`}>
-          <span className="text-2xl">{icon}</span>
+          <Icon name={icon} size={28} />
         </div>
         <span className={`text-sm font-medium ${trendColors}`}>{change}</span>
       </div>
@@ -184,7 +185,9 @@ function QuickAction({
       href={href}
       className={`block p-4 rounded-lg ${colorClasses} text-white transition hover:shadow-lg`}
     >
-      <div className="text-3xl mb-2">{icon}</div>
+      <div className="mb-2">
+        <Icon name={icon} size={32} />
+      </div>
       <h3 className="font-semibold text-lg">{title}</h3>
       <p className="text-sm opacity-90 mt-1">{description}</p>
     </a>
@@ -204,8 +207,8 @@ function ActivityItem({
 }) {
   return (
     <div className="flex items-start space-x-4 p-3 hover:bg-slate-700/30 rounded-lg transition">
-      <div className="shrink-0">
-        <span className="text-2xl">{icon}</span>
+      <div className="shrink-0 text-blue-400">
+        <Icon name={icon} size={24} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-slate-100">{title}</p>

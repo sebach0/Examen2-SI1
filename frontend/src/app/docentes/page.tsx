@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import {
   getDocentes,
   deleteDocente,
@@ -87,7 +88,8 @@ export default function DocentesPage() {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold text-slate-100">
-              👨‍🏫 Gestión de Docentes
+              <Icon name="user" className="text-blue-400" size={32} />
+              Gestión de Docentes
             </h1>
             <p className="text-slate-400 mt-1">
               Administra los docentes del sistema
@@ -97,7 +99,7 @@ export default function DocentesPage() {
             onClick={() => router.push("/docentes/nuevo")}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-glow"
           >
-            <span>➕</span>
+            <Icon name="add" size={20} />
             Nuevo Docente
           </button>
         </div>
@@ -107,7 +109,7 @@ export default function DocentesPage() {
           <form onSubmit={handleSearch} className="flex gap-4">
             <input
               type="text"
-              placeholder="🔍 Buscar por nombre, CI, email..."
+              placeholder="Buscar por nombre, CI, email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 px-4 py-2 bg-slate-800 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-100 placeholder-slate-400"
@@ -228,13 +230,15 @@ export default function DocentesPage() {
                         onClick={() => router.push(`/docentes/${docente.id}`)}
                         className="text-blue-400 hover:text-blue-300 mr-3 transition-colors"
                       >
-                        ✏️ Editar
+                        <Icon name="edit" size={16} />
+                        Editar
                       </button>
                       <button
                         onClick={() => handleDelete(docente.id, docente.nombre)}
                         className="text-red-400 hover:text-red-300 transition-colors"
                       >
-                        🗑️ Eliminar
+                        <Icon name="delete" size={16} />
+                        Eliminar
                       </button>
                     </td>
                   </tr>

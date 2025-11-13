@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from "react";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import {
   getAsistencias,
   getEstadisticasDocente,
@@ -112,17 +113,18 @@ export default function ReportesPage() {
 
   const getEstadoBadge = (estado: string) => {
     const estados = {
-      presente: { bg: "bg-green-500/20", text: "text-green-300", icon: "✅" },
-      ausente: { bg: "bg-red-500/20", text: "text-red-300", icon: "❌" },
-      tarde: { bg: "bg-yellow-500/20", text: "text-yellow-300", icon: "⏰" },
-      justificado: { bg: "bg-blue-500/20", text: "text-blue-300", icon: "📝" },
+      presente: { bg: "bg-green-500/20", text: "text-green-300", icon: "check" },
+      ausente: { bg: "bg-red-500/20", text: "text-red-300", icon: "close" },
+      tarde: { bg: "bg-yellow-500/20", text: "text-yellow-300", icon: "clock" },
+      justificado: { bg: "bg-blue-500/20", text: "text-blue-300", icon: "clipboard" },
     };
     const e = estados[estado as keyof typeof estados] || estados.ausente;
     return (
       <span
-        className={`${e.bg} ${e.text} px-2 py-1 rounded text-xs font-medium`}
+        className={`${e.bg} ${e.text} px-2 py-1 rounded text-xs font-medium flex items-center gap-1.5 inline-flex`}
       >
-        {e.icon} {estado.charAt(0).toUpperCase() + estado.slice(1)}
+        <Icon name={e.icon} size={14} />
+        {estado.charAt(0).toUpperCase() + estado.slice(1)}
       </span>
     );
   };
@@ -131,8 +133,9 @@ export default function ReportesPage() {
     <ProtectedLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">
-            📊 Reportes de Asistencia
+          <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+            <Icon name="chart" className="text-blue-400" size={32} />
+            Reportes de Asistencia
           </h1>
           <p className="text-slate-400 mt-1">
             Estadísticas y exportación de datos
@@ -141,13 +144,17 @@ export default function ReportesPage() {
 
         {/* Filtros */}
         <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl p-6 space-y-4">
-          <h2 className="text-xl font-bold text-slate-200">🔍 Filtros</h2>
+          <h2 className="text-xl font-bold text-slate-200 flex items-center gap-2">
+            <Icon name="search" className="text-slate-400" size={24} />
+            Filtros
+          </h2>
 
           <div className="grid grid-cols-2 gap-4">
             {/* Fecha Inicio */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                📅 Fecha Inicio
+              <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <Icon name="calendar" className="text-slate-400" size={16} />
+                Fecha Inicio
               </label>
               <input
                 type="date"
@@ -161,8 +168,9 @@ export default function ReportesPage() {
 
             {/* Fecha Fin */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                📅 Fecha Fin
+              <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <Icon name="calendar" className="text-slate-400" size={16} />
+                Fecha Fin
               </label>
               <input
                 type="date"
@@ -176,8 +184,9 @@ export default function ReportesPage() {
 
             {/* Docente */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                👨‍🏫 Docente
+              <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <Icon name="user" className="text-slate-400" size={16} />
+                Docente
               </label>
               <select
                 value={filtros.docente_id || ""}
@@ -197,8 +206,9 @@ export default function ReportesPage() {
 
             {/* Grupo */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                👥 Grupo
+              <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <Icon name="users" className="text-slate-400" size={16} />
+                Grupo
               </label>
               <select
                 value={filtros.grupo_id || ""}
@@ -218,8 +228,9 @@ export default function ReportesPage() {
 
             {/* Estado */}
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                ✔️ Estado
+              <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <Icon name="check" className="text-slate-400" size={16} />
+                Estado
               </label>
               <select
                 value={filtros.estado || ""}
@@ -229,10 +240,10 @@ export default function ReportesPage() {
                 className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Todos los estados</option>
-                <option value="presente">✅ Presente</option>
-                <option value="ausente">❌ Ausente</option>
-                <option value="tarde">⏰ Tardanza</option>
-                <option value="justificado">📝 Justificado</option>
+                <option value="presente">Presente</option>
+                <option value="ausente">Ausente</option>
+                <option value="tarde">Tardanza</option>
+                <option value="justificado">Justificado</option>
               </select>
             </div>
           </div>
@@ -241,16 +252,22 @@ export default function ReportesPage() {
             <button
               onClick={handleBuscar}
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-600 text-white rounded-lg font-medium"
+              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-600 text-white rounded-lg font-medium flex items-center justify-center gap-2"
             >
-              {loading ? "Cargando..." : "🔍 Buscar"}
+              {loading ? "Cargando..." : (
+                <>
+                  <Icon name="search" size={18} />
+                  Buscar
+                </>
+              )}
             </button>
             <button
               onClick={handleExportar}
               disabled={asistencias.length === 0}
-              className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-500 disabled:bg-slate-600 text-white rounded-lg font-medium"
+              className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-500 disabled:bg-slate-600 text-white rounded-lg font-medium flex items-center justify-center gap-2"
             >
-              📥 Exportar Excel
+              <Icon name="download" size={18} />
+              Exportar Excel
             </button>
           </div>
         </div>
@@ -341,7 +358,10 @@ export default function ReportesPage() {
                       </td>
                       <td className="px-6 py-4">{getEstadoBadge(a.estado)}</td>
                       <td className="px-6 py-4 text-sm text-slate-400">
-                        {a.modo === "QR" ? "📱 QR" : "📝 Manual"}
+                        <span className="flex items-center gap-1.5">
+                          <Icon name={a.modo === "QR" ? "qr" : "clipboard"} size={14} className={a.modo === "QR" ? "text-blue-400" : "text-slate-400"} />
+                          {a.modo === "QR" ? "QR" : "Manual"}
+                        </span>
                       </td>
                     </tr>
                   ))}

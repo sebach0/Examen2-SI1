@@ -9,6 +9,7 @@
 
 import { useState, useEffect } from "react";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import {
   marcarAsistencia,
   marcarAsistenciaPorQR,
@@ -183,8 +184,9 @@ export default function MarcarAsistenciaPage() {
     <ProtectedLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">
-            ✅ Marcar Asistencia
+          <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+            <Icon name="check" className="text-green-400" size={32} />
+            Marcar Asistencia
           </h1>
           <p className="text-slate-400 mt-1">Registro manual o por código QR</p>
         </div>
@@ -193,23 +195,25 @@ export default function MarcarAsistenciaPage() {
         <div className="flex gap-3">
           <button
             onClick={() => setModo("manual")}
-            className={`flex-1 px-6 py-3 rounded-lg font-medium ${
+            className={`flex-1 px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2 ${
               modo === "manual"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-700 text-slate-300"
             }`}
           >
-            📝 Marcar Manual
+            <Icon name="clipboard" size={20} />
+            Marcar Manual
           </button>
           <button
             onClick={() => setModo("qr")}
-            className={`flex-1 px-6 py-3 rounded-lg font-medium ${
+            className={`flex-1 px-6 py-3 rounded-lg font-medium flex items-center justify-center gap-2 ${
               modo === "qr"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-700 text-slate-300"
             }`}
           >
-            📱 Generar QR
+            <Icon name="qr" size={20} />
+            Generar QR
           </button>
         </div>
 
@@ -219,21 +223,23 @@ export default function MarcarAsistenciaPage() {
             onSubmit={handleMarcarManual}
             className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl p-6 space-y-4"
           >
-            <h2 className="text-xl font-bold text-slate-200">
-              📝 Registro Manual
+            <h2 className="text-xl font-bold text-slate-200 flex items-center gap-2">
+              <Icon name="clipboard" className="text-blue-400" size={24} />
+              Registro Manual
             </h2>
 
             {/* Selector de Docente (solo para admins) */}
             {isAdmin && (
               <div className="bg-amber-900/20 border border-amber-700/50 rounded-lg p-4 mb-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-amber-400 text-lg">⚠️</span>
+                  <Icon name="alert" className="text-amber-400" size={20} />
                   <span className="text-amber-300 font-medium">
                     Modo Administrador
                   </span>
                 </div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  👨‍🏫 Seleccione Docente *
+                <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                  <Icon name="user" className="text-slate-400" size={16} />
+                  Seleccione Docente *
                 </label>
                 <select
                   value={docenteId}
@@ -256,8 +262,9 @@ export default function MarcarAsistenciaPage() {
 
             {/* Grupo */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                👥 Grupo *
+              <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <Icon name="users" className="text-slate-400" size={16} />
+                Grupo *
               </label>
               <select
                 value={formData.grupo_id}
@@ -283,8 +290,9 @@ export default function MarcarAsistenciaPage() {
 
             {/* Bloque */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                🕐 Bloque *
+              <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <Icon name="clock" className="text-slate-400" size={16} />
+                Bloque *
               </label>
               <select
                 value={formData.bloque_id}
@@ -305,8 +313,9 @@ export default function MarcarAsistenciaPage() {
 
             {/* Fecha */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                📅 Fecha *
+              <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <Icon name="calendar" className="text-slate-400" size={16} />
+                Fecha *
               </label>
               <input
                 type="date"
@@ -321,8 +330,9 @@ export default function MarcarAsistenciaPage() {
 
             {/* Estado */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                ✔️ Estado *
+              <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <Icon name="check" className="text-slate-400" size={16} />
+                Estado *
               </label>
               <select
                 value={formData.estado}
@@ -332,17 +342,18 @@ export default function MarcarAsistenciaPage() {
                 required
                 className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
-                <option value="presente">✅ Presente</option>
-                <option value="ausente">❌ Ausente</option>
-                <option value="tarde">⏰ Tardanza</option>
-                <option value="justificado">📝 Justificado</option>
+                <option value="presente">Presente</option>
+                <option value="ausente">Ausente</option>
+                <option value="tarde">Tardanza</option>
+                <option value="justificado">Justificado</option>
               </select>
             </div>
 
             {/* Observaciones */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                📝 Observaciones
+              <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                <Icon name="document" className="text-slate-400" size={16} />
+                Observaciones
               </label>
               <textarea
                 value={formData.observacion || ""}
@@ -356,9 +367,10 @@ export default function MarcarAsistenciaPage() {
 
             <button
               type="submit"
-              className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium"
+              className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium flex items-center justify-center gap-2"
             >
-              ✅ Marcar Asistencia
+              <Icon name="check" size={20} />
+              Marcar Asistencia
             </button>
           </form>
         )}
@@ -367,21 +379,23 @@ export default function MarcarAsistenciaPage() {
         {modo === "qr" && (
           <div className="space-y-6">
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl p-6 space-y-4">
-              <h2 className="text-xl font-bold text-slate-200">
-                📱 Generar Código QR
+              <h2 className="text-xl font-bold text-slate-200 flex items-center gap-2">
+                <Icon name="qr" className="text-blue-400" size={24} />
+                Generar Código QR
               </h2>
 
               {/* Selector de Docente (solo para admins) */}
               {isAdmin && (
                 <div className="bg-amber-900/20 border border-amber-700/50 rounded-lg p-4 mb-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-amber-400 text-lg">⚠️</span>
+                    <Icon name="alert" className="text-amber-400" size={20} />
                     <span className="text-amber-300 font-medium">
                       Modo Administrador
                     </span>
                   </div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    👨‍🏫 Seleccione Docente *
+                  <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                    <Icon name="user" className="text-slate-400" size={16} />
+                    Seleccione Docente *
                   </label>
                   <select
                     value={docenteId}
@@ -404,8 +418,9 @@ export default function MarcarAsistenciaPage() {
 
               {/* Grupo */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  👥 Grupo *
+                <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                  <Icon name="users" className="text-slate-400" size={16} />
+                  Grupo *
                 </label>
                 <select
                   value={formData.grupo_id}
@@ -430,8 +445,9 @@ export default function MarcarAsistenciaPage() {
 
               {/* Bloque */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  🕐 Bloque *
+                <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                  <Icon name="clock" className="text-slate-400" size={16} />
+                  Bloque *
                 </label>
                 <select
                   value={formData.bloque_id}
@@ -451,8 +467,9 @@ export default function MarcarAsistenciaPage() {
 
               {/* Fecha */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  📅 Fecha *
+                <label className="block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
+                  <Icon name="calendar" className="text-slate-400" size={16} />
+                  Fecha *
                 </label>
                 <input
                   type="date"
@@ -466,17 +483,19 @@ export default function MarcarAsistenciaPage() {
 
               <button
                 onClick={handleGenerarQR}
-                className="w-full px-4 py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg font-medium"
+                className="w-full px-4 py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg font-medium flex items-center justify-center gap-2"
               >
-                📱 Generar Código QR
+                <Icon name="qr" size={20} />
+                Generar Código QR
               </button>
             </div>
 
             {/* Mostrar QR */}
             {qrURL && (
               <div className="bg-slate-800/50 backdrop-blur-sm border border-green-600 rounded-lg shadow-xl p-8 text-center space-y-4">
-                <h3 className="text-xl font-bold text-green-300">
-                  ✅ Código QR Generado
+                <h3 className="text-xl font-bold text-green-300 flex items-center justify-center gap-2">
+                  <Icon name="check" className="text-green-400" size={24} />
+                  Código QR Generado
                 </h3>
                 <div className="bg-white p-4 rounded-lg inline-block">
                   <img src={qrURL} alt="QR Code" className="w-64 h-64" />
@@ -484,7 +503,10 @@ export default function MarcarAsistenciaPage() {
                 <p className="text-slate-300">
                   Muestra este código a los estudiantes
                 </p>
-                <p className="text-red-300 text-sm">⏱️ Válido por 5 minutos</p>
+                <p className="text-red-300 text-sm flex items-center justify-center gap-2">
+                  <Icon name="clock" className="text-red-400" size={16} />
+                  Válido por 5 minutos
+                </p>
                 <div className="font-mono text-xs text-slate-500 break-all">
                   Token: {qrToken}
                 </div>

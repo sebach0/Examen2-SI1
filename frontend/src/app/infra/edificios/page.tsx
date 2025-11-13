@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import { getEdificios, deleteEdificio } from "@/services/edificio.service";
 import type { Edificio } from "@/types";
 
@@ -47,7 +48,10 @@ export default function EdificiosPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-slate-100">🏢 Edificios</h1>
+            <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+              <Icon name="building" className="text-blue-400" size={32} />
+              Edificios
+            </h1>
             <p className="text-slate-400 mt-1">
               Gestiona los edificios del campus
             </p>
@@ -56,14 +60,15 @@ export default function EdificiosPage() {
             onClick={() => router.push("/infra/edificios/nuevo")}
             className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-medium"
           >
-            ➕ Nuevo Edificio
+            <Icon name="add" size={20} />
+            Nuevo Edificio
           </button>
         </div>
 
         <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl p-4">
           <input
             type="text"
-            placeholder="🔍 Buscar edificio..."
+            placeholder="Buscar edificio..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600 text-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 placeholder:text-slate-500"
@@ -115,7 +120,7 @@ export default function EdificiosPage() {
                           }
                           className="text-blue-400 hover:text-blue-300"
                         >
-                          ✏️
+                          <Icon name="edit" size={16} />
                         </button>
                         <button
                           onClick={() =>
@@ -123,7 +128,7 @@ export default function EdificiosPage() {
                           }
                           className="text-red-400 hover:text-red-300"
                         >
-                          🗑️
+                          <Icon name="delete" size={16} />
                         </button>
                       </td>
                     </tr>

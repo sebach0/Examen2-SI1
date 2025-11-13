@@ -9,6 +9,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import { getRoles, deleteRol } from "@/services/rol.service";
 import type { Rol } from "@/types";
 
@@ -81,7 +82,10 @@ export default function RolesPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-slate-100">🎭 Roles</h1>
+            <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+              <Icon name="settings" className="text-blue-400" size={32} />
+              Roles
+            </h1>
             <p className="mt-2 text-sm text-slate-400">
               Gestiona los roles y sus permisos del sistema
             </p>
@@ -193,13 +197,15 @@ export default function RolesPage() {
                         onClick={() => router.push(`/roles/${rol.id}`)}
                         className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
                       >
-                        ✏️ Editar
+                        <Icon name="edit" size={16} />
+                        Editar
                       </button>
                       <button
                         onClick={() => handleDelete(rol)}
                         className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm"
                       >
-                        🗑️ Eliminar
+                        <Icon name="delete" size={16} />
+                        Eliminar
                       </button>
                     </div>
                   </div>

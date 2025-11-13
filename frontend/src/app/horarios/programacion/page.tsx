@@ -9,6 +9,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import { getHorarios, deleteHorario } from "@/services/horario.service";
 import { getGrupos } from "@/services/grupo.service";
 import { getAulas } from "@/services/aula.service";
@@ -80,20 +81,21 @@ export default function ProgramacionPage() {
 
   const getTipoBadge = (tipo: string) => {
     const tipos = {
-      teorico: { bg: "bg-blue-500/20", text: "text-blue-300", icon: "📚" },
-      practico: { bg: "bg-green-500/20", text: "text-green-300", icon: "⚙️" },
+      teorico: { bg: "bg-blue-500/20", text: "text-blue-300", icon: "book" },
+      practico: { bg: "bg-green-500/20", text: "text-green-300", icon: "settings" },
       laboratorio: {
         bg: "bg-purple-500/20",
         text: "text-purple-300",
-        icon: "🔬",
+        icon: "target",
       },
     };
     const t = tipos[tipo as keyof typeof tipos] || tipos.teorico;
     return (
       <span
-        className={`${t.bg} ${t.text} px-2 py-1 rounded text-xs font-medium`}
+        className={`${t.bg} ${t.text} px-2 py-1 rounded text-xs font-medium flex items-center gap-1.5 inline-flex`}
       >
-        {t.icon} {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
+        <Icon name={t.icon} size={12} />
+        {tipo.charAt(0).toUpperCase() + tipo.slice(1)}
       </span>
     );
   };
@@ -103,8 +105,9 @@ export default function ProgramacionPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-slate-100">
-              📅 Programación de Horarios
+            <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+              <Icon name="calendar" className="text-blue-400" size={32} />
+              Programación de Horarios
             </h1>
             <p className="text-slate-400 mt-1">
               Asignación de bloques y aulas a grupos
@@ -112,9 +115,10 @@ export default function ProgramacionPage() {
           </div>
           <button
             onClick={() => router.push("/horarios/programacion/nuevo")}
-            className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-medium"
+            className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2"
           >
-            ➕ Nuevo Horario
+            <Icon name="add" size={20} />
+            Nuevo Horario
           </button>
         </div>
 
@@ -202,15 +206,15 @@ export default function ProgramacionPage() {
                           onClick={() =>
                             router.push(`/horarios/programacion/${horario.id}`)
                           }
-                          className="text-blue-400 hover:text-blue-300"
+                          className="text-blue-400 hover:text-blue-300 inline-flex items-center gap-1"
                         >
-                          ✏️
+                          <Icon name="edit" size={16} />
                         </button>
                         <button
                           onClick={() => handleDelete(horario.id)}
-                          className="text-red-400 hover:text-red-300"
+                          className="text-red-400 hover:text-red-300 inline-flex items-center gap-1"
                         >
-                          🗑️
+                          <Icon name="delete" size={16} />
                         </button>
                       </td>
                     </tr>

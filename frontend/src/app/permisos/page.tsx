@@ -9,6 +9,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
+import { Icon } from "@/components/shared/Icon";
 import { getPermisos, deletePermiso } from "@/services/permiso.service";
 import type { Permiso } from "@/types";
 
@@ -98,7 +99,10 @@ export default function PermisosPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-slate-100">🔐 Permisos</h1>
+            <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+              <Icon name="settings" className="text-blue-400" size={32} />
+              Permisos
+            </h1>
             <p className="mt-2 text-sm text-slate-400">
               Gestiona los permisos del sistema
             </p>
@@ -234,13 +238,15 @@ export default function PermisosPage() {
                             }
                             className="text-blue-400 hover:text-blue-300 mr-4 transition-colors"
                           >
-                            ✏️ Editar
+                            <Icon name="edit" size={16} />
+                            Editar
                           </button>
                           <button
                             onClick={() => handleDelete(permiso)}
                             className="text-red-400 hover:text-red-300 transition-colors"
                           >
-                            🗑️ Eliminar
+                            <Icon name="delete" size={16} />
+                            Eliminar
                           </button>
                         </td>
                       </tr>
