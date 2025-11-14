@@ -55,7 +55,9 @@ export async function logout(): Promise<void> {
  * Obtener usuario actual autenticado
  */
 export async function getCurrentUser(): Promise<Usuario> {
-  return api.get<Usuario>("/auth/me");
+  const response = await api.get<{ user: Usuario }>("/auth/me");
+  // El backend devuelve { user: ... }, extraer el usuario
+  return response.user || response as unknown as Usuario;
 }
 
 /**

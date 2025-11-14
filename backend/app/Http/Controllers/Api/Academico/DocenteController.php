@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 /**
@@ -156,21 +157,80 @@ class DocenteController extends Controller
     public function show(string $id)
     {
         try {
+            // Cargar docente con relaciones básicas
             $docente = Docente::with([
                 'usuario:id,username,email,estado',
                 'usuario.roles:id,nombre',
-                'cargas.grupo.materia:id,nombre,codigo',
-                'cargas.grupo.gestion:id,nombre'
             ])->findOrFail($id);
+            
+            // Cargar cargas con sus relaciones por separado
+            $docente->load([
+                'cargas.grupo:id,materia_id,gestion_id,codigo,capacidad',
+                'cargas.grupo.materia:id,nombre,codigo',
+                'cargas.grupo.gestion:id,codigo,periodo,anio'
+            ]);
             
             $this->logConsultar('docente', 1);
 
-            return response()->json($docente);
+            // Construir respuesta manualmente para control total
+            $data = [
+                'id' => $docente->id,
+                'usuario_id' => $docente->usuario_id,
+                'ci' => $docente->ci,
+                'nombre' => $docente->nombre,
+                'telefono' => $docente->telefono,
+                'usuario' => $docente->usuario ? [
+                    'id' => $docente->usuario->id,
+                    'username' => $docente->usuario->username,
+                    'email' => $docente->usuario->email,
+                    'estado' => $docente->usuario->estado,
+                    'roles' => $docente->usuario->roles->map(function ($rol) {
+                        return [
+                            'id' => $rol->id,
+                            'nombre' => $rol->nombre,
+                        ];
+                    })->toArray(),
+                ] : null,
+                'cargas' => $docente->cargas->map(function ($carga) {
+                    return [
+                        'id' => $carga->id,
+                        'docente_id' => $carga->docente_id,
+                        'grupo_id' => $carga->grupo_id,
+                        'horas_asignadas' => $carga->horas_asignadas,
+                        'grupo' => $carga->grupo ? [
+                            'id' => $carga->grupo->id,
+                            'materia_id' => $carga->grupo->materia_id,
+                            'gestion_id' => $carga->grupo->gestion_id,
+                            'codigo' => $carga->grupo->codigo,
+                            'capacidad' => $carga->grupo->capacidad,
+                            'materia' => $carga->grupo->materia ? [
+                                'id' => $carga->grupo->materia->id,
+                                'nombre' => $carga->grupo->materia->nombre,
+                                'codigo' => $carga->grupo->materia->codigo,
+                            ] : null,
+                            'gestion' => $carga->grupo->gestion ? [
+                                'id' => $carga->grupo->gestion->id,
+                                'codigo' => $carga->grupo->gestion->codigo,
+                                'periodo' => $carga->grupo->gestion->periodo,
+                                'anio' => $carga->grupo->gestion->anio,
+                            ] : null,
+                        ] : null,
+                    ];
+                })->toArray(),
+            ];
+
+            return response()->json($data);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Docente no encontrado'
             ], 404);
         } catch (\Exception $e) {
+            Log::error('Error al obtener docente', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'message' => 'Error al obtener el docente',
                 'error' => $e->getMessage()
@@ -358,6 +418,68 @@ class DocenteController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener estadísticas',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * 📤 Exportar docentes a Excel o PDF
+     * GET /api/docentes/exportar?formato=excel|pdf
+     */
+    public function exportar(Request $request)
+    {
+        try {
+            $formato = $request->input('formato', 'excel');
+            
+            $query = Docente::query()->with([
+                'usuario.roles',
+                'cargas'
+            ]);
+
+            // Aplicar los mismos filtros que en index
+            if ($request->has('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('nombre', 'ilike', "%{$search}%")
+                      ->orWhere('ci', 'ilike', "%{$search}%")
+                      ->orWhere('telefono', 'ilike', "%{$search}%")
+                      ->orWhereHas('usuario', function($uq) use ($search) {
+                          $uq->where('email', 'ilike', "%{$search}%")
+                             ->orWhere('username', 'ilike', "%{$search}%");
+                      });
+                });
+            }
+
+            if ($request->has('estado')) {
+                $query->whereHas('usuario', function($uq) use ($request) {
+                    $uq->where('estado', $request->estado);
+                });
+            }
+
+            $docentes = $query->orderBy('nombre', 'asc')->get();
+
+            $this->logActivity(
+                'exportar',
+                "Exportó listado de docentes en formato {$formato}",
+                [
+                    'formato' => $formato,
+                    'total' => $docentes->count(),
+                ]
+            );
+
+            if ($formato === 'pdf') {
+                $export = new \App\Exports\DocentesPdfExport($docentes, $request->all());
+                return $export->download();
+            } else {
+                return \Maatwebsite\Excel\Facades\Excel::download(
+                    new \App\Exports\DocentesExport($docentes),
+                    'docentes-' . now()->setTimezone(config('app.timezone'))->format('Y-m-d') . '.xlsx'
+                );
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al exportar docentes',
                 'error' => $e->getMessage()
             ], 500);
         }

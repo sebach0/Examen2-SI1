@@ -22,149 +22,56 @@ class AuthSeeder extends Seeder
         // ========== CREAR PERMISOS ==========
         
         // Permisos de Dashboard
-        $permisoDashboardVer = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'dashboard.ver',
-            'descripcion' => 'Permite ver el dashboard',
-        ]);
+        $permisoDashboardVer = $this->crearPermiso('dashboard.ver', 'Permite ver el dashboard');
 
         // Permisos de Usuarios
-        $permisoUsuariosVer = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'usuarios.ver',
-            'descripcion' => 'Ver listado de usuarios',
-        ]);
-        $permisoUsuariosCrear = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'usuarios.crear',
-            'descripcion' => 'Crear nuevos usuarios',
-        ]);
-        $permisoUsuariosEditar = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'usuarios.editar',
-            'descripcion' => 'Editar usuarios existentes',
-        ]);
-        $permisoUsuariosEliminar = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'usuarios.eliminar',
-            'descripcion' => 'Eliminar usuarios',
-        ]);
+        $permisoUsuariosVer = $this->crearPermiso('usuarios.ver', 'Ver listado de usuarios');
+        $permisoUsuariosCrear = $this->crearPermiso('usuarios.crear', 'Crear nuevos usuarios');
+        $permisoUsuariosEditar = $this->crearPermiso('usuarios.editar', 'Editar usuarios existentes');
+        $permisoUsuariosEliminar = $this->crearPermiso('usuarios.eliminar', 'Eliminar usuarios');
 
         // Permisos de Roles
-        $permisoRolesVer = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'roles.ver',
-            'descripcion' => 'Ver listado de roles',
-        ]);
-        $permisoRolesCrear = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'roles.crear',
-            'descripcion' => 'Crear nuevos roles',
-        ]);
-        $permisoRolesEditar = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'roles.editar',
-            'descripcion' => 'Editar roles existentes',
-        ]);
+        $permisoRolesVer = $this->crearPermiso('roles.ver', 'Ver listado de roles');
+        $permisoRolesCrear = $this->crearPermiso('roles.crear', 'Crear nuevos roles');
+        $permisoRolesEditar = $this->crearPermiso('roles.editar', 'Editar roles existentes');
 
         // Permisos de Permisos
-        $permisoPermisosVer = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'permisos.ver',
-            'descripcion' => 'Ver listado de permisos',
-        ]);
+        $permisoPermisosVer = $this->crearPermiso('permisos.ver', 'Ver listado de permisos');
 
         // Permisos de Académico
-        $permisoMateriasVer = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'academico.materias.ver',
-            'descripcion' => 'Ver materias',
-        ]);
-        $permisoMateriasGestionar = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'academico.materias.gestionar',
-            'descripcion' => 'Crear, editar y eliminar materias',
-        ]);
-        $permisoGruposVer = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'academico.grupos.ver',
-            'descripcion' => 'Ver grupos',
-        ]);
-        $permisoGruposGestionar = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'academico.grupos.gestionar',
-            'descripcion' => 'Crear, editar y eliminar grupos',
-        ]);
+        $permisoMateriasVer = $this->crearPermiso('academico.materias.ver', 'Ver materias');
+        $permisoMateriasGestionar = $this->crearPermiso('academico.materias.gestionar', 'Crear, editar y eliminar materias');
+        $permisoGruposVer = $this->crearPermiso('academico.grupos.ver', 'Ver grupos');
+        $permisoGruposGestionar = $this->crearPermiso('academico.grupos.gestionar', 'Crear, editar y eliminar grupos');
 
         // Permisos de Infraestructura
-        $permisoAulasVer = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'infraestructura.aulas.ver',
-            'descripcion' => 'Ver aulas',
-        ]);
-        $permisoAulasGestionar = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'infraestructura.aulas.gestionar',
-            'descripcion' => 'Gestionar aulas',
-        ]);
+        $permisoAulasVer = $this->crearPermiso('infraestructura.aulas.ver', 'Ver aulas');
+        $permisoAulasGestionar = $this->crearPermiso('infraestructura.aulas.gestionar', 'Gestionar aulas');
 
         // Permisos de Horarios
-        $permisoHorariosVer = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'horarios.ver',
-            'descripcion' => 'Ver horarios',
-        ]);
-        $permisoHorariosGestionar = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'horarios.gestionar',
-            'descripcion' => 'Gestionar horarios',
-        ]);
+        $permisoHorariosVer = $this->crearPermiso('horarios.ver', 'Ver horarios');
+        $permisoHorariosGestionar = $this->crearPermiso('horarios.gestionar', 'Gestionar horarios');
 
         // Permisos de Asistencia
-        $permisoAsistenciaVer = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'asistencia.ver',
-            'descripcion' => 'Ver registros de asistencia',
-        ]);
-        $permisoAsistenciaMarcar = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'asistencia.marcar',
-            'descripcion' => 'Marcar asistencia',
-        ]);
+        $permisoAsistenciaVer = $this->crearPermiso('asistencia.ver', 'Ver registros de asistencia');
+        $permisoAsistenciaMarcar = $this->crearPermiso('asistencia.marcar', 'Marcar asistencia');
 
         // Permisos de Bitácora
-        $permisoBitacoraVer = Permiso::create([
-            'id' => (string) Str::uuid(),
-            'codigo' => 'sistema.bitacora.ver',
-            'descripcion' => 'Ver bitácora del sistema',
-        ]);
+        $permisoBitacoraVer = $this->crearPermiso('sistema.bitacora.ver', 'Ver bitácora del sistema');
 
         echo "✅ Permisos creados\n";
 
         // ========== CREAR ROLES ==========
         
         // Rol Superadmin
-        $rolSuperadmin = Rol::create([
-            'id' => (string) Str::uuid(),
-            'nombre' => 'superadmin',
-            'descripcion' => 'Administrador del sistema con acceso total',
-        ]);
+        $rolSuperadmin = $this->crearRol('superadmin', 'Administrador del sistema con acceso total');
 
         // Asignar TODOS los permisos al superadmin
         $todosPermisos = Permiso::all()->pluck('id')->toArray();
-        foreach ($todosPermisos as $permisoId) {
-            DB::table('rol_permiso')->insert([
-                'rol_id' => $rolSuperadmin->id,
-                'permiso_id' => $permisoId,
-            ]);
-        }
+        $this->asignarPermisosARol($rolSuperadmin->id, $todosPermisos);
 
         // Rol Admin
-        $rolAdmin = Rol::create([
-            'id' => (string) Str::uuid(),
-            'nombre' => 'admin',
-            'descripcion' => 'Administrador general del sistema',
-        ]);
+        $rolAdmin = $this->crearRol('admin', 'Administrador general del sistema');
 
         // Admin tiene acceso a todo excepto gestión de roles/permisos
         $permisosAdmin = [
@@ -184,19 +91,10 @@ class AuthSeeder extends Seeder
             $permisoBitacoraVer->id,
         ];
 
-        foreach ($permisosAdmin as $permisoId) {
-            DB::table('rol_permiso')->insert([
-                'rol_id' => $rolAdmin->id,
-                'permiso_id' => $permisoId,
-            ]);
-        }
+        $this->asignarPermisosARol($rolAdmin->id, $permisosAdmin);
 
         // Rol Coordinador
-        $rolCoordinador = Rol::create([
-            'id' => (string) Str::uuid(),
-            'nombre' => 'coordinador',
-            'descripcion' => 'Coordinador académico',
-        ]);
+        $rolCoordinador = $this->crearRol('coordinador', 'Coordinador académico');
 
         $permisosCoordinador = [
             $permisoDashboardVer->id,
@@ -210,19 +108,10 @@ class AuthSeeder extends Seeder
             $permisoAsistenciaVer->id,
         ];
 
-        foreach ($permisosCoordinador as $permisoId) {
-            DB::table('rol_permiso')->insert([
-                'rol_id' => $rolCoordinador->id,
-                'permiso_id' => $permisoId,
-            ]);
-        }
+        $this->asignarPermisosARol($rolCoordinador->id, $permisosCoordinador);
 
         // Rol Docente
-        $rolDocente = Rol::create([
-            'id' => (string) Str::uuid(),
-            'nombre' => 'docente',
-            'descripcion' => 'Docente del sistema',
-        ]);
+        $rolDocente = $this->crearRol('docente', 'Docente del sistema');
 
         $permisosDocente = [
             $permisoDashboardVer->id,
@@ -233,19 +122,10 @@ class AuthSeeder extends Seeder
             $permisoAsistenciaMarcar->id,
         ];
 
-        foreach ($permisosDocente as $permisoId) {
-            DB::table('rol_permiso')->insert([
-                'rol_id' => $rolDocente->id,
-                'permiso_id' => $permisoId,
-            ]);
-        }
+        $this->asignarPermisosARol($rolDocente->id, $permisosDocente);
 
         // Rol Auxiliar
-        $rolAuxiliar = Rol::create([
-            'id' => (string) Str::uuid(),
-            'nombre' => 'auxiliar',
-            'descripcion' => 'Auxiliar de docente',
-        ]);
+        $rolAuxiliar = $this->crearRol('auxiliar', 'Auxiliar de docente');
 
         $permisosAuxiliar = [
             $permisoDashboardVer->id,
@@ -255,19 +135,10 @@ class AuthSeeder extends Seeder
             $permisoAsistenciaMarcar->id,
         ];
 
-        foreach ($permisosAuxiliar as $permisoId) {
-            DB::table('rol_permiso')->insert([
-                'rol_id' => $rolAuxiliar->id,
-                'permiso_id' => $permisoId,
-            ]);
-        }
+        $this->asignarPermisosARol($rolAuxiliar->id, $permisosAuxiliar);
 
         // Rol Estudiante
-        $rolEstudiante = Rol::create([
-            'id' => (string) Str::uuid(),
-            'nombre' => 'estudiante',
-            'descripcion' => 'Estudiante del sistema',
-        ]);
+        $rolEstudiante = $this->crearRol('estudiante', 'Estudiante del sistema');
 
         $permisosEstudiante = [
             $permisoDashboardVer->id,
@@ -275,65 +146,121 @@ class AuthSeeder extends Seeder
             $permisoHorariosVer->id,
         ];
 
-        foreach ($permisosEstudiante as $permisoId) {
-            DB::table('rol_permiso')->insert([
-                'rol_id' => $rolEstudiante->id,
-                'permiso_id' => $permisoId,
-            ]);
-        }
+        $this->asignarPermisosARol($rolEstudiante->id, $permisosEstudiante);
 
         echo "✅ Roles creados con sus permisos\n";
 
         // ========== CREAR USUARIOS ==========
         
         // Usuario superadmin
-        $superadmin = Usuario::create([
-            'id' => (string) Str::uuid(),
-            'username' => 'superadmin',
-            'email' => 'superadmin@sistema.com',
-            'password_hash' => Hash::make('super123'), // CAMBIAR EN PRODUCCIÓN
-            'estado' => 'activo',
-        ]);
-
-        DB::table('usuario_rol')->insert([
-            'usuario_id' => $superadmin->id,
-            'rol_id' => $rolSuperadmin->id,
-        ]);
+        $superadmin = $this->crearUsuario('superadmin', 'superadmin@sistema.com', 'super123');
+        $this->asignarRolAUsuario($superadmin->id, $rolSuperadmin->id);
 
         // Usuario admin
-        $admin = Usuario::create([
-            'id' => (string) Str::uuid(),
-            'username' => 'admin',
-            'email' => 'admin@sistema.com',
-            'password_hash' => Hash::make('admin123'), // CAMBIAR EN PRODUCCIÓN
-            'estado' => 'activo',
-        ]);
-
-        DB::table('usuario_rol')->insert([
-            'usuario_id' => $admin->id,
-            'rol_id' => $rolAdmin->id,
-        ]);
-
-        // Usuario docente de prueba
-        $docente = Usuario::create([
-            'id' => (string) Str::uuid(),
-            'username' => 'docente',
-            'email' => 'docente@sistema.com',
-            'password_hash' => Hash::make('docente123'), // CAMBIAR EN PRODUCCIÓN
-            'estado' => 'activo',
-        ]);
-
-        DB::table('usuario_rol')->insert([
-            'usuario_id' => $docente->id,
-            'rol_id' => $rolDocente->id,
-        ]);
+        $admin = $this->crearUsuario('admin', 'admin@sistema.com', 'admin123');
+        $this->asignarRolAUsuario($admin->id, $rolAdmin->id);
 
         echo "✅ Usuarios creados\n\n";
         $this->command->info('🎉 Sistema de autenticación inicializado:');
         $this->command->info('   Superadmin: superadmin / super123 (' . count($todosPermisos) . ' permisos)');
         $this->command->info('   Admin: admin / admin123 (' . count($permisosAdmin) . ' permisos)');
-        $this->command->info('   Docente: docente / docente123 (' . count($permisosDocente) . ' permisos)');
         $this->command->info('');
-        $this->command->info('   Total: ' . Permiso::count() . ' permisos | ' . Rol::count() . ' roles | 3 usuarios base');
+        $this->command->info('   Total: ' . Permiso::count() . ' permisos | ' . Rol::count() . ' roles | 2 usuarios base');
+    }
+
+    /**
+     * Crear permiso si no existe
+     */
+    private function crearPermiso(string $codigo, string $descripcion): Permiso
+    {
+        $permiso = Permiso::where('codigo', $codigo)->first();
+        
+        if (!$permiso) {
+            $permiso = Permiso::create([
+                'id' => (string) Str::uuid(),
+                'codigo' => $codigo,
+                'descripcion' => $descripcion,
+            ]);
+        }
+        
+        return $permiso;
+    }
+
+    /**
+     * Crear rol si no existe
+     */
+    private function crearRol(string $nombre, string $descripcion): Rol
+    {
+        $rol = Rol::where('nombre', $nombre)->first();
+        
+        if (!$rol) {
+            $rol = Rol::create([
+                'id' => (string) Str::uuid(),
+                'nombre' => $nombre,
+                'descripcion' => $descripcion,
+            ]);
+        }
+        
+        return $rol;
+    }
+
+    /**
+     * Asignar permisos a un rol (evita duplicados)
+     */
+    private function asignarPermisosARol(string $rolId, array $permisoIds): void
+    {
+        foreach ($permisoIds as $permisoId) {
+            $existe = DB::table('rol_permiso')
+                ->where('rol_id', $rolId)
+                ->where('permiso_id', $permisoId)
+                ->exists();
+            
+            if (!$existe) {
+                DB::table('rol_permiso')->insert([
+                    'rol_id' => $rolId,
+                    'permiso_id' => $permisoId,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Crear usuario si no existe
+     */
+    private function crearUsuario(string $username, string $email, string $password): Usuario
+    {
+        $usuario = Usuario::where('username', $username)
+            ->orWhere('email', $email)
+            ->first();
+        
+        if (!$usuario) {
+            $usuario = Usuario::create([
+                'id' => (string) Str::uuid(),
+                'username' => $username,
+                'email' => $email,
+                'password_hash' => Hash::make($password),
+                'estado' => 'activo',
+            ]);
+        }
+        
+        return $usuario;
+    }
+
+    /**
+     * Asignar rol a usuario (evita duplicados)
+     */
+    private function asignarRolAUsuario(string $usuarioId, string $rolId): void
+    {
+        $existe = DB::table('usuario_rol')
+            ->where('usuario_id', $usuarioId)
+            ->where('rol_id', $rolId)
+            ->exists();
+        
+        if (!$existe) {
+            DB::table('usuario_rol')->insert([
+                'usuario_id' => $usuarioId,
+                'rol_id' => $rolId,
+            ]);
+        }
     }
 }

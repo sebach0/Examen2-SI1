@@ -22,7 +22,7 @@ import { getStoredUser } from "@/lib/auth";
 import type { CargaDocente, BloqueHorario, Docente } from "@/types";
 
 export default function MarcarAsistenciaPage() {
-  const [modo, setModo] = useState<"manual" | "qr">("manual");
+  const [modo, setModo] = useState<"manual" | "QR">("manual");
   const [cargas, setCargas] = useState<CargaDocente[]>([]);
   const [bloques, setBloques] = useState<BloqueHorario[]>([]);
   const [docentes, setDocentes] = useState<Docente[]>([]);
@@ -137,17 +137,18 @@ export default function MarcarAsistenciaPage() {
         grupo_id: formData.grupo_id,
         bloque_id: formData.bloque_id,
         fecha: formData.fecha,
-        duracion_minutos: 5,
+        duracion_minutos: 15, // Aumentado a 15 minutos para dar más tiempo
       });
 
       setQrToken(result.token);
-      // Generar URL del QR manualmente (podrías usar una librería como qrcode)
+      // Generar URL del QR con la URL completa para que redirija a la página de escaneo
+      const qrData = result.qr_data || result.url_qr || `${window.location.origin}/asistencia/escaneo?token=${result.token}`;
       setQrURL(
-        `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(
-          result.token
+        `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(
+          qrData
         )}`
       );
-      alert("✅ Código QR generado (válido por 5 minutos)");
+      alert("✅ Código QR generado (válido por 15 minutos)");
     } catch (error: any) {
       alert(error.response?.data?.message || "Error al generar QR");
     }
@@ -189,9 +190,9 @@ export default function MarcarAsistenciaPage() {
             📝 Marcar Manual
           </button>
           <button
-            onClick={() => setModo("qr")}
+            onClick={() => setModo("QR")}
             className={`flex-1 px-6 py-3 rounded-lg font-medium ${
-              modo === "qr"
+              modo === "QR"
                 ? "bg-blue-600 text-white"
                 : "bg-slate-700 text-slate-300"
             }`}
@@ -351,7 +352,7 @@ export default function MarcarAsistenciaPage() {
         )}
 
         {/* Modo QR */}
-        {modo === "qr" && (
+        {modo === "QR" && (
           <div className="space-y-6">
             <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl p-6 space-y-4">
               <h2 className="text-xl font-bold text-slate-200">
@@ -470,9 +471,12 @@ export default function MarcarAsistenciaPage() {
                   <img src={qrURL} alt="QR Code" className="w-64 h-64" />
                 </div>
                 <p className="text-slate-300">
-                  Muestra este código a los estudiantes
+                  Muestra este código QR a los docentes para que escaneen y marquen su asistencia
                 </p>
-                <p className="text-red-300 text-sm">⏱️ Válido por 5 minutos</p>
+                <p className="text-red-300 text-sm">⏱️ Válido por 15 minutos</p>
+                <p className="text-blue-300 text-xs mt-2">
+                  💡 Los docentes pueden escanear este QR con su móvil para marcar asistencia automáticamente
+                </p>
                 <div className="font-mono text-xs text-slate-500 break-all">
                   Token: {qrToken}
                 </div>

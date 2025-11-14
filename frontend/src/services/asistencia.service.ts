@@ -67,9 +67,14 @@ export const marcarAsistencia = async (
 };
 
 export const marcarAsistenciaPorQR = async (
-  token: string
+  token: string,
+  docente_id?: string
 ): Promise<Asistencia> => {
-  return api.post<Asistencia>("/asistencias/qr", { token });
+  const payload: { token: string; docente_id?: string } = { token };
+  if (docente_id) {
+    payload.docente_id = docente_id;
+  }
+  return api.post<Asistencia>("/asistencias/qr", payload);
 };
 
 export const updateAsistencia = async (
@@ -87,13 +92,21 @@ export const deleteAsistencia = async (id: string): Promise<void> => {
 // QR SESIONES
 // ==================
 
+export interface GenerarQRResponse {
+  message: string;
+  data: QrSesion;
+  token: string;
+  url_qr: string;
+  qr_data: string;
+}
+
 export const generarQR = async (data: {
   grupo_id: string;
   fecha: string;
   bloque_id: string;
   duracion_minutos?: number;
-}): Promise<QrSesion> => {
-  return api.post<QrSesion>("/qr-sesiones/generar", data);
+}): Promise<GenerarQRResponse> => {
+  return api.post<GenerarQRResponse>("/qr-sesiones/generar", data);
 };
 
 export const verificarQR = async (
@@ -101,12 +114,16 @@ export const verificarQR = async (
 ): Promise<{
   valido: boolean;
   sesion?: QrSesion;
+  data?: QrSesion;
   mensaje?: string;
+  message?: string;
 }> => {
   return api.get<{
     valido: boolean;
     sesion?: QrSesion;
+    data?: QrSesion;
     mensaje?: string;
+    message?: string;
   }>(`/qr-sesiones/verificar/${token}`);
 };
 
@@ -153,9 +170,11 @@ export const getEstadisticasGrupo = async (
 };
 
 export const exportarReporte = async (
-  filtros: AsistenciaFiltros
+  filtros: AsistenciaFiltros,
+  formato: "excel" | "pdf" = "excel"
 ): Promise<Blob> => {
   const params = new URLSearchParams();
+  params.append("formato", formato);
   if (filtros.docente_id) params.append("docente_id", filtros.docente_id);
   if (filtros.grupo_id) params.append("grupo_id", filtros.grupo_id);
   if (filtros.fecha_inicio) params.append("fecha_inicio", filtros.fecha_inicio);
@@ -163,16 +182,7 @@ export const exportarReporte = async (
   if (filtros.estado) params.append("estado", filtros.estado);
 
   const queryString = params.toString();
-  const url = `/asistencias/exportar${queryString ? `?${queryString}` : ""}`;
+  const url = `/asistencias/exportar?${queryString}`;
 
-  // Para descargar archivos
-  const response = await fetch(`${api}${url}`, {
-    credentials: "include",
-  });
-
-  if (!response.ok) {
-    throw new Error("Error al exportar reporte");
-  }
-
-  return response.blob();
+  return api.downloadFile(url);
 };

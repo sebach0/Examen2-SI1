@@ -114,3 +114,21 @@ export const getEstadisticas = async (): Promise<MateriaEstadisticas> => {
 export const getCarreras = async (): Promise<Carrera[]> => {
   return api.get<Carrera[]>("/materias/carreras");
 };
+
+/**
+ * Exporta materias a Excel
+ */
+export const exportarMaterias = async (
+  filters?: MateriaFilters,
+  formato: "excel" = "excel"
+): Promise<Blob> => {
+  const params = new URLSearchParams();
+  params.append("formato", formato);
+  if (filters?.search) params.append("search", filters.search);
+  if (filters?.carrera_id) params.append("carrera_id", filters.carrera_id);
+
+  const queryString = params.toString();
+  const url = `/materias/exportar?${queryString}`;
+
+  return api.downloadFile(url);
+};

@@ -49,3 +49,24 @@ export const updateCarga = async (
 export const deleteCarga = async (id: string): Promise<void> => {
   await api.delete(`/cargas-docentes/${id}`);
 };
+
+/**
+ * Exporta cargas docentes a Excel
+ */
+export const exportarCargas = async (
+  filters?: {
+    docente_id?: string;
+    grupo_id?: string;
+  },
+  formato: "excel" = "excel"
+): Promise<Blob> => {
+  const params = new URLSearchParams();
+  params.append("formato", formato);
+  if (filters?.docente_id) params.append("docente_id", filters.docente_id);
+  if (filters?.grupo_id) params.append("grupo_id", filters.grupo_id);
+
+  const queryString = params.toString();
+  const url = `/cargas-docentes/exportar?${queryString}`;
+
+  return api.downloadFile(url);
+};

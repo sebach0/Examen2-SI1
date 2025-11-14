@@ -75,9 +75,18 @@ export default function MateriaFormPage() {
         creditos: materia.creditos,
         requisito_ids: materia.requisitos?.map((r) => r.id) || [],
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error al cargar materia:", error);
-      alert("Error al cargar los datos de la materia");
+      
+      // Mostrar mensaje de error más descriptivo
+      let message = "Error al cargar los datos de la materia";
+      if (error.response?.data?.message) {
+        message = error.response.data.message;
+      } else if (error.message) {
+        message = error.message;
+      }
+      
+      alert(message);
       router.push("/academico/materias");
     } finally {
       setLoadingData(false);
@@ -119,17 +128,19 @@ export default function MateriaFormPage() {
         await updateMateria(id, updateData);
         alert("Materia actualizada exitosamente");
       } else {
+        // Preparar datos para crear, solo incluir requisito_ids si tiene elementos
         const createData: CreateMateriaData = {
           carrera_id: formData.carrera_id,
           codigo: formData.codigo.toUpperCase(),
           nombre: formData.nombre,
           horas_semanales: formData.horas_semanales,
           creditos: formData.creditos,
-          requisito_ids:
-            formData.requisito_ids.length > 0
-              ? formData.requisito_ids
-              : undefined,
         };
+
+        // Solo agregar requisito_ids si hay elementos seleccionados
+        if (formData.requisito_ids && formData.requisito_ids.length > 0) {
+          createData.requisito_ids = formData.requisito_ids;
+        }
 
         await createMateria(createData);
         alert("Materia creada exitosamente");
@@ -138,7 +149,20 @@ export default function MateriaFormPage() {
       router.push("/academico/materias");
     } catch (error: any) {
       console.error("Error al guardar materia:", error);
-      const message = error.message || "Error al guardar la materia";
+      
+      // Extraer mensaje de error más descriptivo
+      let message = "Error al guardar la materia";
+      
+      if (error.response?.data?.message) {
+        message = error.response.data.message;
+      } else if (error.response?.data?.errors) {
+        // Si hay errores de validación, mostrar el primero
+        const firstError = Object.values(error.response.data.errors)[0];
+        message = Array.isArray(firstError) ? firstError[0] : String(firstError);
+      } else if (error.message) {
+        message = error.message;
+      }
+      
       alert(message);
     } finally {
       setLoading(false);

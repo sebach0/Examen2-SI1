@@ -284,4 +284,48 @@ class CargaDocenteController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * 📤 Exportar cargas docentes a Excel
+     * GET /api/cargas-docentes/exportar?formato=excel
+     */
+    public function exportar(Request $request)
+    {
+        try {
+            $formato = $request->input('formato', 'excel');
+            
+            $query = CargaDocente::with([
+                'docente.usuario',
+                'grupo.materia',
+                'grupo.gestion'
+            ]);
+
+            // Aplicar los mismos filtros que en index
+            if ($request->filled('docente_id')) {
+                $query->where('docente_id', $request->docente_id);
+            }
+
+            if ($request->filled('grupo_id')) {
+                $query->where('grupo_id', $request->grupo_id);
+            }
+
+            $cargas = $query->orderBy('id', 'desc')->get();
+
+            $this->logActivity(
+                'exportar',
+                "Exportó listado de cargas docentes en formato {$formato}",
+                ['formato' => $formato, 'total' => $cargas->count()]
+            );
+
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\CargaDocenteExport($cargas),
+                'cargas-docentes-' . now()->setTimezone(config('app.timezone'))->format('Y-m-d') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al exportar cargas docentes',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -65,6 +65,17 @@ export default function ProgramacionFormPage() {
     }
   };
 
+  const normalizarTipoDesdeBackend = (tipo: string): string => {
+    // El backend usa: teorica, practica, laboratorio
+    // El frontend usa: teorico, practico, laboratorio
+    const mapeo: Record<string, string> = {
+      'teorica': 'teorico',
+      'practica': 'practico',
+      'laboratorio': 'laboratorio',
+    };
+    return mapeo[tipo] || tipo;
+  };
+
   const loadHorario = async () => {
     try {
       const horario = await getHorarioById(id);
@@ -72,30 +83,38 @@ export default function ProgramacionFormPage() {
         grupo_id: horario.grupo_id,
         bloque_id: horario.bloque_id,
         aula_id: horario.aula_id,
-        tipo: horario.tipo,
+        tipo: normalizarTipoDesdeBackend(horario.tipo),
       });
-    } catch (error) {
-      alert("Error al cargar horario");
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Error al cargar el horario";
+      alert(errorMessage);
+      router.push("/horarios/programacion");
     }
   };
 
   const handleVerificarConflictos = async () => {
-    if (!formData.bloque_id || !formData.aula_id) {
-      alert("Seleccione bloque y aula primero");
+    if (!formData.grupo_id || !formData.bloque_id || !formData.aula_id) {
+      alert("Seleccione grupo, bloque y aula primero");
       return;
     }
 
     try {
       const result = await verificarConflictos(formData);
-      setConflictos(result.conflictos);
+      setConflictos(result.conflictos || []);
 
-      if (result.conflictos.length === 0) {
+      if (!result.tiene_conflictos || result.conflictos.length === 0) {
         alert("✅ Sin conflictos detectados");
       } else {
-        alert(`⚠️ ${result.conflictos.length} conflicto(s) detectado(s)`);
+        // No mostrar alert, los conflictos se muestran en el panel
+        console.log(`${result.conflictos.length} conflicto(s) detectado(s)`);
       }
     } catch (error: any) {
-      alert(error.response?.data?.message || "Error al verificar");
+      const errorMessage = error.response?.data?.message || "Error al verificar conflictos";
+      const errorDetails = error.response?.data?.errors 
+        ? JSON.stringify(error.response.data.errors, null, 2)
+        : "";
+      alert(errorMessage + (errorDetails ? `\n\nDetalles:\n${errorDetails}` : ""));
+      setConflictos([]);
     }
   };
 
@@ -104,7 +123,7 @@ export default function ProgramacionFormPage() {
 
     // Verificar conflictos antes de guardar
     if (conflictos.length > 0) {
-      if (!confirm("Hay conflictos. ¿Desea continuar de todos modos?")) {
+      if (!confirm("Hay conflictos detectados. ¿Desea continuar de todos modos?")) {
         return;
       }
     }
@@ -112,14 +131,20 @@ export default function ProgramacionFormPage() {
     try {
       if (isEditing) {
         await updateHorario(id, formData);
-        alert("Horario actualizado");
+        alert("Horario actualizado exitosamente");
       } else {
         await createHorario(formData);
-        alert("Horario creado");
+        alert("Horario creado exitosamente");
       }
       router.push("/horarios/programacion");
     } catch (error: any) {
-      alert(error.response?.data?.message || "Error al guardar");
+      const errorMessage = error.response?.data?.message || "Error al guardar el horario";
+      const errorDetails = error.response?.data?.errors 
+        ? JSON.stringify(error.response.data.errors, null, 2)
+        : error.response?.data?.conflictos
+        ? `\n\nConflictos:\n${JSON.stringify(error.response.data.conflictos, null, 2)}`
+        : "";
+      alert(errorMessage + (errorDetails ? `\n\nDetalles:\n${errorDetails}` : ""));
     }
   };
 
@@ -134,6 +159,21 @@ export default function ProgramacionFormPage() {
       "Sábado",
     ];
     return dias[dia] || "N/A";
+  };
+
+  const formatearHora = (hora: string) => {
+    // Si la hora viene en formato ISO, extraer solo la hora
+    if (hora.includes('T')) {
+      return hora.split('T')[1]?.split('.')[0]?.substring(0, 5) || hora;
+    }
+    return hora;
+  };
+
+  const formatearBloque = (bloque: BloqueHorario) => {
+    const dia = getDiaNombre(bloque.dia_semana);
+    const inicio = formatearHora(bloque.hora_inicio);
+    const fin = formatearHora(bloque.hora_fin);
+    return `${dia} ${inicio} - ${fin}`;
   };
 
   return (
@@ -191,8 +231,7 @@ export default function ProgramacionFormPage() {
                   <option value="">Seleccione un bloque</option>
                   {bloques.map((b) => (
                     <option key={b.id} value={b.id}>
-                      {getDiaNombre(b.dia_semana)} {b.hora_inicio} -{" "}
-                      {b.hora_fin}
+                      {formatearBloque(b)}
                     </option>
                   ))}
                 </select>
@@ -244,8 +283,8 @@ export default function ProgramacionFormPage() {
               <button
                 type="button"
                 onClick={handleVerificarConflictos}
-                disabled={!formData.bloque_id || !formData.aula_id}
-                className="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 disabled:bg-slate-600 text-white rounded-lg font-medium"
+                disabled={!formData.grupo_id || !formData.bloque_id || !formData.aula_id}
+                className="w-full px-4 py-2 bg-yellow-600 hover:bg-yellow-500 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
               >
                 🔍 Verificar Conflictos
               </button>
@@ -254,17 +293,27 @@ export default function ProgramacionFormPage() {
             {/* Panel de Conflictos */}
             {conflictos.length > 0 && (
               <div className="bg-red-900/20 border border-red-600/50 rounded-lg p-4">
-                <h3 className="text-red-300 font-bold mb-2 flex items-center gap-2">
+                <h3 className="text-red-300 font-bold mb-3 flex items-center gap-2">
                   ⚠️ Conflictos Detectados ({conflictos.length})
                 </h3>
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {conflictos.map((c, idx) => (
                     <li
                       key={idx}
-                      className="text-red-200 text-sm bg-red-900/30 p-3 rounded"
+                      className="text-red-200 text-sm bg-red-900/30 p-3 rounded border border-red-700/50"
                     >
-                      <div className="font-medium">{c.tipo}</div>
-                      <div className="text-red-300/80">{c.mensaje}</div>
+                      <div className="font-medium mb-1 capitalize">
+                        {c.tipo === 'aula' ? '🏫 Conflicto de Aula' : '👥 Conflicto de Grupo'}
+                      </div>
+                      <div className="text-red-300/90 mb-2">{c.mensaje}</div>
+                      {c.horario && (
+                        <div className="text-red-200/70 text-xs mt-2 pt-2 border-t border-red-700/30">
+                          <div>Horario existente: {c.horario.grupo?.materia?.nombre || 'N/A'}</div>
+                          {c.horario.aula && (
+                            <div>Aula: {c.horario.aula.codigo}</div>
+                          )}
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>

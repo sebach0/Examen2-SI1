@@ -43,11 +43,12 @@ class BloqueHorario extends Model
     ];
 
     /**
-     * Casts: Convertir hora_inicio/hora_fin a objetos Carbon
+     * Casts: hora_inicio/hora_fin son campos time (solo hora, no fecha)
+     * No hacer cast a datetime para mantenerlos como strings o usar accessors
      */
     protected $casts = [
-        'hora_inicio' => 'datetime',
-        'hora_fin' => 'datetime',
+        // No hacer cast a datetime porque son campos time, no datetime
+        // Se manejarán como strings o con accessors específicos
     ];
 
     /**
@@ -127,7 +128,15 @@ class BloqueHorario extends Model
      */
     public function getDescripcionCompletaAttribute(): string
     {
-        return "{$this->nombre_dia} {$this->hora_inicio->format('H:i')} - {$this->hora_fin->format('H:i')}";
+        $horaInicio = is_string($this->hora_inicio) 
+            ? substr($this->hora_inicio, 0, 5) // Tomar solo HH:MM
+            : \Carbon\Carbon::parse($this->hora_inicio)->format('H:i');
+        
+        $horaFin = is_string($this->hora_fin) 
+            ? substr($this->hora_fin, 0, 5) // Tomar solo HH:MM
+            : \Carbon\Carbon::parse($this->hora_fin)->format('H:i');
+        
+        return "{$this->nombre_dia} {$horaInicio} - {$horaFin}";
     }
 
     /**
@@ -135,6 +144,14 @@ class BloqueHorario extends Model
      */
     public function getDuracionMinutosAttribute(): int
     {
-        return $this->hora_inicio->diffInMinutes($this->hora_fin);
+        $horaInicio = is_string($this->hora_inicio) 
+            ? \Carbon\Carbon::parse($this->hora_inicio)
+            : \Carbon\Carbon::parse($this->hora_inicio);
+        
+        $horaFin = is_string($this->hora_fin) 
+            ? \Carbon\Carbon::parse($this->hora_fin)
+            : \Carbon\Carbon::parse($this->hora_fin);
+        
+        return $horaInicio->diffInMinutes($horaFin);
     }
 }

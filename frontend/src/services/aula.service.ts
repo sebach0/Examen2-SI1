@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import type { Aula } from "@/types";
 
 // Interfaces
 export interface AulaFilters {
@@ -74,8 +75,8 @@ export const getAulas = async (filters: AulaFilters = {}) => {
 /**
  * Obtener todas las aulas sin paginación
  */
-export const getAllAulas = async () => {
-  return api.get("/aulas?all=true");
+export const getAllAulas = async (): Promise<Aula[]> => {
+  return api.get<Aula[]>("/aulas?all=true");
 };
 
 /**

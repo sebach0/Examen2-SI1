@@ -7,6 +7,7 @@ use App\Domain\Shared\Traits\LogsActivity;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class QrSesionController extends Controller
@@ -36,42 +37,111 @@ class QrSesionController extends Controller
                 ], 422);
             }
 
-            // Desactivar sesiones QR anteriores para el mismo grupo/bloque/fecha
-            QrSesion::where('grupo_id', $request->grupo_id)
-                ->where('bloque_id', $request->bloque_id)
-                ->whereDate('fecha', $request->fecha)
-                ->update(['activo' => false]);
+            // Calcular tiempo de expiración (por defecto 15 minutos)
+            // Asegurar que se use el timezone de Bolivia
+            // IMPORTANTE: Guardar en formato que PostgreSQL entienda correctamente
+            $duracionMinutos = $request->get('duracion_minutos', 15);
+            $expiraEn = now()->setTimezone(config('app.timezone'))->addMinutes($duracionMinutos);
+            
+            // Asegurar que se guarde correctamente en la base de datos
+            // Convertir a string con timezone explícito para PostgreSQL timestampTz
+            // PostgreSQL espera el formato: 'YYYY-MM-DD HH:MM:SS+TZ'
+            $expiraEnString = $expiraEn->format('Y-m-d H:i:sP'); // P = timezone offset (+04:00)
 
             // Generar token único
             $token = Str::random(32);
 
-            // Calcular tiempo de expiración (por defecto 15 minutos)
-            $duracionMinutos = $request->get('duracion_minutos', 15);
-            $expiraEn = now()->addMinutes($duracionMinutos);
+            // Buscar si ya existe un QR para este grupo/bloque/fecha
+            $qrSesionExistente = QrSesion::where('grupo_id', $request->grupo_id)
+                ->where('bloque_id', $request->bloque_id)
+                ->whereDate('fecha', $request->fecha)
+                ->first();
 
-            // Crear la sesión QR
-            $qrSesion = QrSesion::create([
-                'grupo_id' => $request->grupo_id,
-                'bloque_id' => $request->bloque_id,
-                'fecha' => $request->fecha,
-                'token' => $token,
-                'expira_en' => $expiraEn,
-                'activo' => true
-            ]);
+            $esNuevo = !$qrSesionExistente;
 
+            if ($qrSesionExistente) {
+                // Si existe, actualizar con nuevo token y tiempo de expiración
+                // Usar DB::raw para insertar directamente el string con timezone
+                DB::table('qr_sesion')
+                    ->where('id', $qrSesionExistente->id)
+                    ->update([
+                        'token' => $token,
+                        'expira_en' => DB::raw("TIMESTAMP WITH TIME ZONE '{$expiraEnString}'"),
+                        'activo' => true,
+                    ]);
+                $qrSesion = $qrSesionExistente->fresh();
+            } else {
+                // Si no existe, crear uno nuevo
+                // Usar DB::raw para insertar directamente el string con timezone
+                $qrSesionId = Str::uuid()->toString();
+                DB::table('qr_sesion')->insert([
+                    'id' => $qrSesionId,
+                    'grupo_id' => $request->grupo_id,
+                    'bloque_id' => $request->bloque_id,
+                    'fecha' => $request->fecha,
+                    'token' => $token,
+                    'expira_en' => DB::raw("TIMESTAMP WITH TIME ZONE '{$expiraEnString}'"),
+                    'activo' => true,
+                    'creado_en' => now()->setTimezone(config('app.timezone'))->format('Y-m-d H:i:sP'),
+                ]);
+                $qrSesion = QrSesion::find($qrSesionId);
+            }
+
+            // Recargar relaciones después de crear/actualizar
             $qrSesion->load(['grupo.materia', 'bloque']);
 
-            $this->logCrear('qr_sesion', $qrSesion);
+            // Log según si es nuevo o actualización
+            if ($esNuevo) {
+                $this->logCrear('qr_sesion', $qrSesion);
+            } else {
+                $this->logActualizar('qr_sesion', $qrSesion->id);
+            }
+
+            // Generar URL completa para el QR (frontend)
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+            $qrUrl = "{$frontendUrl}/asistencia/escaneo?token={$token}";
+
+            // Formatear fechas con timezone de Bolivia para el frontend
+            // Enviar en formato ISO con timezone explícito para que el frontend lo interprete correctamente
+            $qrSesionData = $qrSesion->toArray();
+            if (isset($qrSesionData['expira_en']) && $qrSesion->expira_en) {
+                // Formatear expira_en en timezone de Bolivia como ISO 8601 con timezone
+                $qrSesionData['expira_en'] = $qrSesion->expira_en
+                    ->copy()
+                    ->setTimezone(config('app.timezone'))
+                    ->toIso8601String(); // Formato: "2025-11-14T15:41:18-04:00"
+            }
+            if (isset($qrSesionData['fecha']) && $qrSesion->fecha) {
+                // Formatear fecha en timezone de Bolivia
+                $qrSesionData['fecha'] = $qrSesion->fecha
+                    ->copy()
+                    ->setTimezone(config('app.timezone'))
+                    ->format('Y-m-d');
+            }
+            if (isset($qrSesionData['creado_en']) && $qrSesion->creado_en) {
+                // Formatear creado_en en timezone de Bolivia como ISO 8601 con timezone
+                $qrSesionData['creado_en'] = $qrSesion->creado_en
+                    ->copy()
+                    ->setTimezone(config('app.timezone'))
+                    ->toIso8601String(); // Formato: "2025-11-14T15:41:18-04:00"
+            }
 
             return response()->json([
                 'message' => 'Código QR generado exitosamente',
-                'data' => $qrSesion,
-                'url_qr' => url("/asistencia/qr/{$token}")
+                'data' => $qrSesionData,
+                'token' => $token,
+                'url_qr' => $qrUrl,
+                'qr_data' => $qrUrl, // URL completa para incluir en el QR
             ], 201);
         } catch (\Exception $e) {
+            \Log::error('Error al generar QR: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+            
             return response()->json([
                 'message' => 'Error al generar código QR',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor'
             ], 500);
         }
     }
@@ -91,23 +161,74 @@ class QrSesionController extends Controller
             if (!$qrSesion) {
                 return response()->json([
                     'valido' => false,
+                    'mensaje' => 'Código QR no encontrado',
                     'message' => 'Código QR no encontrado'
                 ], 404);
             }
 
-            // Verificar si está activo y no ha expirado
-            $esValido = $qrSesion->activo && $qrSesion->expira_en > now();
+            // Verificar si no ha expirado (tolerancia de 1 minuto después de expiración)
+            // Asegurar que ambas fechas estén en el timezone de Bolivia
+            $haExpirado = false;
+            if ($qrSesion->expira_en) {
+                // Asegurar que expira_en esté en el timezone correcto
+                $expiraEn = $qrSesion->expira_en->copy()->setTimezone(config('app.timezone'));
+                // Obtener hora actual en timezone de Bolivia
+                $ahora = now()->setTimezone(config('app.timezone'));
+                // Usar copy() para no modificar el objeto original
+                $fechaExpiracionConTolerancia = $expiraEn->copy()->addMinutes(1);
+                $haExpirado = $fechaExpiracionConTolerancia < $ahora;
+            }
+            
+            // El QR es válido si no ha expirado (activo o no, mientras no haya expirado)
+            $esValido = !$haExpirado;
 
-            if (!$esValido && $qrSesion->activo) {
+            if ($haExpirado && $qrSesion->activo) {
                 // Si expiró pero aún está marcado como activo, desactivarlo
                 $qrSesion->update(['activo' => false]);
+            } elseif (!$haExpirado && !$qrSesion->activo) {
+                // Si no ha expirado pero está inactivo, reactivarlo
+                $qrSesion->update(['activo' => true]);
+            }
+
+            // Recargar relaciones si no están cargadas
+            if (!$qrSesion->relationLoaded('grupo')) {
+                $qrSesion->load(['grupo.materia', 'bloque']);
+            }
+
+            // Formatear fechas con timezone de Bolivia para el frontend
+            // Enviar en formato ISO con timezone explícito para que el frontend lo interprete correctamente
+            $qrSesionData = $qrSesion->toArray();
+            if (isset($qrSesionData['expira_en']) && $qrSesion->expira_en) {
+                // Formatear expira_en en timezone de Bolivia como ISO 8601 con timezone
+                $qrSesionData['expira_en'] = $qrSesion->expira_en
+                    ->copy()
+                    ->setTimezone(config('app.timezone'))
+                    ->toIso8601String(); // Formato: "2025-11-14T15:41:18-04:00"
+            }
+            if (isset($qrSesionData['fecha']) && $qrSesion->fecha) {
+                // Formatear fecha en timezone de Bolivia
+                $qrSesionData['fecha'] = $qrSesion->fecha
+                    ->copy()
+                    ->setTimezone(config('app.timezone'))
+                    ->format('Y-m-d');
+            }
+            if (isset($qrSesionData['creado_en']) && $qrSesion->creado_en) {
+                // Formatear creado_en en timezone de Bolivia como ISO 8601 con timezone
+                $qrSesionData['creado_en'] = $qrSesion->creado_en
+                    ->copy()
+                    ->setTimezone(config('app.timezone'))
+                    ->toIso8601String(); // Formato: "2025-11-14T15:41:18-04:00"
             }
 
             return response()->json([
                 'valido' => $esValido,
-                'message' => $esValido ? 'Código QR válido' : 'Código QR expirado o inactivo',
-                'data' => $qrSesion,
-                'expira_en_segundos' => $esValido ? now()->diffInSeconds($qrSesion->expira_en) : 0
+                'mensaje' => $esValido ? 'Código QR válido' : 'Código QR expirado o inactivo',
+                'message' => $esValido ? 'Código QR válido' : 'Código QR expirado o inactivo', // Compatibilidad
+                'sesion' => $qrSesionData,
+                'data' => $qrSesionData, // Compatibilidad con código existente
+                'expira_en_segundos' => $esValido 
+                    ? now()->setTimezone(config('app.timezone'))->diffInSeconds($qrSesion->expira_en->setTimezone(config('app.timezone'))) 
+                    : 0
             ]);
         } catch (\Exception $e) {
             return response()->json([

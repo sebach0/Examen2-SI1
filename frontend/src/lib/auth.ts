@@ -45,16 +45,22 @@ export function getStoredUser(): Usuario | null {
 /**
  * Verifica si el usuario tiene un rol específico
  */
-export function hasRole(user: Usuario, roleName: string): boolean {
-  return user.roles?.some((rol) => rol.nombre === roleName) ?? false;
+export function hasRole(user: Usuario | null, roleName: string): boolean {
+  if (!user || !user.roles) return false;
+  return user.roles.some((rol) => 
+    rol.nombre?.toLowerCase() === roleName.toLowerCase()
+  );
 }
 
 /**
  * Verifica si el usuario tiene un permiso específico
  * @param codigo Formato: "modulo.recurso.accion" ej: "academico.materias.crear"
  */
-export function hasPermission(user: Usuario, codigo: string): boolean {
-  if (!user.roles) return false;
+export function hasPermission(user: Usuario | null, codigo: string): boolean {
+  if (!user || !user.roles) return false;
+  
+  // Superadmin tiene todos los permisos
+  if (isSuperAdmin(user)) return true;
 
   return user.roles.some((rol) =>
     rol.permisos?.some((permiso) => permiso.codigo === codigo)
@@ -64,8 +70,12 @@ export function hasPermission(user: Usuario, codigo: string): boolean {
 /**
  * Verifica si el usuario es superadmin
  */
-export function isSuperAdmin(user: Usuario): boolean {
-  return hasRole(user, "superadmin") || hasRole(user, "admin");
+export function isSuperAdmin(user: Usuario | null): boolean {
+  if (!user || !user.roles) return false;
+  return user.roles.some((rol) => 
+    rol.nombre?.toLowerCase() === "superadmin" || 
+    rol.nombre?.toLowerCase() === "admin"
+  );
 }
 
 /**

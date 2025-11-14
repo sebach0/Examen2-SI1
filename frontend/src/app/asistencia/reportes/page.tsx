@@ -82,22 +82,35 @@ export default function ReportesPage() {
     }
   };
 
-  const handleExportar = async () => {
+  const handleExportar = async (formato: "excel" | "pdf" = "excel") => {
     try {
-      const blob = await exportarReporte(filtros);
+      setLoading(true);
+      const blob = await exportarReporte(filtros, formato);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
+      const extension = formato === "pdf" ? "pdf" : "xlsx";
       a.download = `reporte-asistencia-${
         new Date().toISOString().split("T")[0]
-      }.xlsx`;
+      }.${extension}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      alert("✅ Reporte exportado");
+      alert(`✅ Reporte exportado en formato ${formato.toUpperCase()}`);
     } catch (error: any) {
-      alert(error.response?.data?.message || "Error al exportar");
+      console.error("Error al exportar:", error);
+      let errorMessage = "Error al exportar reporte";
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.status === 401) {
+        errorMessage = "No autorizado. Por favor, inicia sesión nuevamente.";
+      } else if (error.status === 500) {
+        errorMessage = "Error del servidor. Por favor, intenta más tarde.";
+      }
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -120,21 +133,21 @@ export default function ReportesPage() {
 
   return (
     <ProtectedLayout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 space-y-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-100">
             📊 Reportes de Asistencia
           </h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-sm sm:text-base text-slate-400 mt-1">
             Estadísticas y exportación de datos
           </p>
         </div>
 
         {/* Filtros */}
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl p-6 space-y-4">
-          <h2 className="text-xl font-bold text-slate-200">🔍 Filtros</h2>
+        <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-lg shadow-xl p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4">
+          <h2 className="text-lg sm:text-xl font-bold text-slate-200">🔍 Filtros</h2>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Fecha Inicio */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -237,11 +250,18 @@ export default function ReportesPage() {
               {loading ? "Cargando..." : "🔍 Buscar"}
             </button>
             <button
-              onClick={handleExportar}
-              disabled={asistencias.length === 0}
-              className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-500 disabled:bg-slate-600 text-white rounded-lg font-medium"
+              onClick={() => handleExportar("excel")}
+              disabled={asistencias.length === 0 || loading}
+              className="px-4 py-2 bg-green-600 hover:bg-green-500 disabled:bg-slate-600 text-white rounded-lg font-medium"
             >
-              📥 Exportar Excel
+              📊 Excel
+            </button>
+            <button
+              onClick={() => handleExportar("pdf")}
+              disabled={asistencias.length === 0 || loading}
+              className="px-4 py-2 bg-red-600 hover:bg-red-500 disabled:bg-slate-600 text-white rounded-lg font-medium"
+            >
+              📄 PDF
             </button>
           </div>
         </div>

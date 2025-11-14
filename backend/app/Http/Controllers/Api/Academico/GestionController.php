@@ -81,7 +81,8 @@ class GestionController extends Controller
     public function activa()
     {
         try {
-            $gestionActiva = Gestion::where('activo', true)->first();
+            // Obtener la gestión activa basada en fechas (fecha actual entre inicio y fin)
+            $gestionActiva = Gestion::actual()->first();
 
             if (!$gestionActiva) {
                 return response()->json([
@@ -109,7 +110,7 @@ class GestionController extends Controller
             // Validación
             $validator = Validator::make($request->all(), [
                 'anio' => 'required|integer|min:2000|max:2100',
-                'periodo' => 'required|integer|in:1,2',
+                'periodo' => 'required|string|max:20|in:Primer Semestre,Segundo Semestre,Anual,Verano',
                 'codigo' => [
                     'required',
                     'string',
@@ -118,7 +119,6 @@ class GestionController extends Controller
                 ],
                 'fecha_inicio' => 'required|date',
                 'fecha_fin' => 'required|date|after:fecha_inicio',
-                'activo' => 'sometimes|boolean',
             ]);
 
             if ($validator->fails()) {
@@ -128,13 +128,14 @@ class GestionController extends Controller
                 ], 422);
             }
 
-            // Si se marca como activo, desactivar las demás gestiones
-            if ($request->get('activo', false)) {
-                Gestion::where('activo', true)->update(['activo' => false]);
-            }
-
-            // Crear la gestión
-            $gestion = Gestion::create($request->all());
+            // Crear la gestión (solo campos permitidos)
+            $gestion = Gestion::create([
+                'anio' => $request->anio,
+                'periodo' => $request->periodo,
+                'codigo' => $request->codigo,
+                'fecha_inicio' => $request->fecha_inicio,
+                'fecha_fin' => $request->fecha_fin,
+            ]);
 
             $this->logCrear('gestion', $gestion);
 
@@ -184,7 +185,7 @@ class GestionController extends Controller
             // Validación
             $validator = Validator::make($request->all(), [
                 'anio' => 'sometimes|integer|min:2000|max:2100',
-                'periodo' => 'sometimes|integer|in:1,2',
+                'periodo' => 'sometimes|string|max:20|in:Primer Semestre,Segundo Semestre,Anual,Verano',
                 'codigo' => [
                     'sometimes',
                     'string',
@@ -193,7 +194,6 @@ class GestionController extends Controller
                 ],
                 'fecha_inicio' => 'sometimes|date',
                 'fecha_fin' => 'sometimes|date|after:fecha_inicio',
-                'activo' => 'sometimes|boolean',
             ]);
 
             if ($validator->fails()) {
@@ -205,15 +205,14 @@ class GestionController extends Controller
 
             $datosAnteriores = $gestion->toArray();
 
-            // Si se marca como activo, desactivar las demás gestiones
-            if ($request->get('activo', false)) {
-                Gestion::where('activo', true)
-                       ->where('id', '!=', $id)
-                       ->update(['activo' => false]);
-            }
-
-            // Actualizar la gestión
-            $gestion->update($request->all());
+            // Actualizar solo los campos permitidos
+            $gestion->update([
+                'anio' => $request->input('anio', $gestion->anio),
+                'periodo' => $request->input('periodo', $gestion->periodo),
+                'codigo' => $request->input('codigo', $gestion->codigo),
+                'fecha_inicio' => $request->input('fecha_inicio', $gestion->fecha_inicio),
+                'fecha_fin' => $request->input('fecha_fin', $gestion->fecha_fin),
+            ]);
 
             $this->logActualizar('gestion', $gestion->id);
 

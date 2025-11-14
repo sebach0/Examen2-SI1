@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\Asistencia;
 
 use App\Domain\Asistencia\Models\Asistencia;
 use App\Domain\Asistencia\Models\QrSesion;
+use App\Domain\TiempoHorarios\Models\CargaDocente;
 use App\Domain\Shared\Traits\LogsActivity;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class AsistenciaController extends Controller
@@ -28,8 +30,18 @@ class AsistenciaController extends Controller
                 'bloque'
             ]);
 
-            // Filtro por docente
-            if ($request->filled('docente_id')) {
+            // Si el usuario es docente, filtrar automáticamente por su docente_id
+            $usuario = $request->user();
+            $esDocente = $usuario && $usuario->docente;
+            $esSuperAdmin = $usuario && $usuario->roles && $usuario->roles->contains(function($rol) {
+                return in_array(strtolower($rol->nombre), ['superadmin', 'admin']);
+            });
+
+            if ($esDocente && !$esSuperAdmin) {
+                // Docente solo ve sus propias asistencias
+                $query->where('docente_id', $usuario->docente->id);
+            } elseif ($request->filled('docente_id') && (!$esDocente || $esSuperAdmin)) {
+                // Filtro por docente (solo si no es docente o si es admin)
                 $query->where('docente_id', $request->docente_id);
             }
 
@@ -97,7 +109,7 @@ class AsistenciaController extends Controller
                 'bloque_id' => 'required|uuid|exists:bloque_horario,id',
                 'fecha' => 'required|date',
                 'estado' => 'required|string|in:presente,ausente,permiso,retraso',
-                'modo' => 'required|string|in:manual,qr',
+                'modo' => 'required|string|in:manual,QR', // Debe coincidir con el enum de la base de datos
                 'observacion' => 'nullable|string|max:500',
             ]);
 
@@ -143,46 +155,207 @@ class AsistenciaController extends Controller
      * Marcar asistencia por código QR
      * 
      * POST /api/asistencias/qr
+     * 
+     * El docente_id se obtiene del usuario autenticado si es docente,
+     * o puede ser especificado por un admin.
      */
     public function marcarPorQr(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
                 'token' => 'required|string',
-                'docente_id' => 'required|uuid|exists:docente,id',
+                'docente_id' => 'sometimes|uuid|exists:docente,id', // Opcional, se obtiene del usuario si no se proporciona
             ]);
 
             if ($validator->fails()) {
+                Log::error('Error de validación en marcarPorQr', [
+                    'errors' => $validator->errors()->toArray(),
+                    'request' => $request->all()
+                ]);
                 return response()->json([
                     'message' => 'Error de validación',
                     'errors' => $validator->errors()
                 ], 422);
             }
 
-            // Buscar la sesión QR activa
+            // Obtener usuario autenticado
+            $usuario = $request->user();
+            if (!$usuario) {
+                return response()->json([
+                    'message' => 'No autenticado'
+                ], 401);
+            }
+
+            // Cargar relación docente si no está cargada
+            if (!$usuario->relationLoaded('docente')) {
+                $usuario->load('docente');
+            }
+
+            // Determinar docente_id: del request o del usuario autenticado
+            $docenteId = $request->docente_id;
+            
+            // Si no se proporciona docente_id, intentar obtenerlo del usuario autenticado
+            if (!$docenteId && $usuario->docente) {
+                $docenteId = $usuario->docente->id;
+            }
+
+            // Si aún no hay docente_id, es un error
+            if (!$docenteId) {
+                \Log::error('No se pudo determinar docente_id en marcarPorQr', [
+                    'usuario_id' => $usuario->id ?? null,
+                    'tiene_docente' => $usuario->docente ? true : false,
+                    'docente_id_request' => $request->docente_id ?? null
+                ]);
+                return response()->json([
+                    'message' => 'No se pudo determinar el docente. Debe estar autenticado como docente o proporcionar docente_id.'
+                ], 422);
+            }
+
+            // Buscar la sesión QR por token (no filtrar por activo aquí, lo verificamos después)
+            // Cargar relaciones necesarias: grupo, bloque
             $qrSesion = QrSesion::where('token', $request->token)
-                ->where('activo', true)
+                ->with(['grupo.materia', 'bloque'])
                 ->first();
 
             if (!$qrSesion) {
                 return response()->json([
-                    'message' => 'Código QR inválido o expirado'
+                    'message' => 'Código QR no encontrado'
                 ], 404);
             }
 
-            // Verificar si no ha expirado
-            if ($qrSesion->expira_en < now()) {
-                $qrSesion->update(['activo' => false]);
+            // Verificar si no ha expirado (tolerancia de 1 minuto después de expiración)
+            // Asegurar que ambas fechas estén en el timezone de Bolivia
+            $haExpirado = false;
+            if ($qrSesion->expira_en) {
+                try {
+                    // Asegurar que expira_en esté en el timezone correcto
+                    // El accessor ya debería haberlo convertido, pero por seguridad lo verificamos
+                    $expiraEn = $qrSesion->expira_en instanceof \Carbon\Carbon 
+                        ? $qrSesion->expira_en->copy()->setTimezone(config('app.timezone'))
+                        : \Carbon\Carbon::parse($qrSesion->expira_en)->setTimezone(config('app.timezone'));
+                    
+                    // Obtener hora actual en timezone de Bolivia
+                    $ahora = now()->setTimezone(config('app.timezone'));
+                    // Usar copy() para no modificar el objeto original
+                    $fechaExpiracionConTolerancia = $expiraEn->copy()->addMinutes(1);
+                    $haExpirado = $fechaExpiracionConTolerancia < $ahora;
+                } catch (\Exception $e) {
+                    Log::error('Error al verificar expiración del QR', [
+                        'error' => $e->getMessage(),
+                        'expira_en' => $qrSesion->expira_en,
+                        'token' => $request->token
+                    ]);
+                    // Si hay error al verificar, considerar como expirado por seguridad
+                    $haExpirado = true;
+                }
+            }
+            
+            if ($haExpirado) {
+                // Si expiró, desactivarlo si aún está activo
+                if ($qrSesion->activo) {
+                    $qrSesion->update(['activo' => false]);
+                }
                 return response()->json([
-                    'message' => 'El código QR ha expirado'
+                    'message' => 'El código QR ha expirado. Por favor, solicite un nuevo código QR.'
                 ], 422);
             }
 
+            // Verificar si está activo (pero permitir marcar si no ha expirado)
+            if (!$qrSesion->activo && !$haExpirado) {
+                // Si está inactivo pero no ha expirado, reactivarlo y permitir marcar
+                $qrSesion->update(['activo' => true]);
+            }
+
+            // Verificar si el docente tiene carga en este grupo
+            $tieneCarga = CargaDocente::where('docente_id', $docenteId)
+                ->where('grupo_id', $qrSesion->grupo_id)
+                ->exists();
+
+            if (!$tieneCarga) {
+                return response()->json([
+                    'message' => 'No tiene asignación en este grupo'
+                ], 403);
+            }
+
+            // Validar que la fecha de la sesión QR coincida con la fecha actual (en hora de Bolivia)
+            $fechaActual = now()->setTimezone(config('app.timezone'))->format('Y-m-d');
+            $fechaSesion = $qrSesion->fecha instanceof \Carbon\Carbon 
+                ? $qrSesion->fecha->setTimezone(config('app.timezone'))->format('Y-m-d')
+                : \Carbon\Carbon::parse($qrSesion->fecha)->setTimezone(config('app.timezone'))->format('Y-m-d');
+
+            if ($fechaActual !== $fechaSesion) {
+                return response()->json([
+                    'message' => 'La fecha de la sesión no coincide con la fecha actual. Solo se puede marcar asistencia el día de la clase.'
+                ], 422);
+            }
+
+            // Validar que la hora actual esté dentro del horario del bloque (en hora de Bolivia)
+            // Solo validar si el bloque está cargado y existe
+            if ($qrSesion->bloque_id && $qrSesion->bloque) {
+                try {
+                    $bloque = $qrSesion->bloque;
+                    $ahora = now()->setTimezone(config('app.timezone'));
+                    $horaActual = $ahora->format('H:i:s');
+                    
+                    // Obtener hora de inicio y fin del bloque (son campos time, no datetime)
+                    // Los campos time se almacenan como strings en formato H:i:s
+                    $horaInicioStr = is_string($bloque->hora_inicio) 
+                        ? $bloque->hora_inicio 
+                        : ($bloque->hora_inicio instanceof \Carbon\Carbon 
+                            ? $bloque->hora_inicio->format('H:i:s')
+                            : (string) $bloque->hora_inicio);
+                    
+                    $horaFinStr = is_string($bloque->hora_fin) 
+                        ? $bloque->hora_fin 
+                        : ($bloque->hora_fin instanceof \Carbon\Carbon 
+                            ? $bloque->hora_fin->format('H:i:s')
+                            : (string) $bloque->hora_fin);
+                    
+                    // Asegurar formato H:i:s (agregar :00 si solo tiene H:i)
+                    if (strlen($horaInicioStr) === 5) {
+                        $horaInicioStr .= ':00';
+                    }
+                    if (strlen($horaFinStr) === 5) {
+                        $horaFinStr .= ':00';
+                    }
+
+                    // Crear objetos Carbon para comparar (usando fecha de hoy en timezone de Bolivia)
+                    $hoy = $ahora->copy()->startOfDay();
+                    $horaInicioCarbon = \Carbon\Carbon::parse($hoy->format('Y-m-d') . ' ' . $horaInicioStr)->setTimezone(config('app.timezone'));
+                    $horaFinCarbon = \Carbon\Carbon::parse($hoy->format('Y-m-d') . ' ' . $horaFinStr)->setTimezone(config('app.timezone'));
+
+                    // Verificar que la hora actual esté dentro del rango del bloque
+                    // Permitir marcar desde 15 minutos antes del inicio hasta 30 minutos después del fin
+                    $horaInicioPermitida = $horaInicioCarbon->copy()->subMinutes(15);
+                    $horaFinPermitida = $horaFinCarbon->copy()->addMinutes(30);
+
+                    if ($ahora < $horaInicioPermitida || $ahora > $horaFinPermitida) {
+                        return response()->json([
+                            'message' => "La asistencia solo se puede marcar durante el horario de la clase. Horario: {$horaInicioStr} - {$horaFinStr} (Hora de Bolivia). Hora actual: {$horaActual}"
+                        ], 422);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error al validar horario del bloque en marcarPorQr', [
+                        'error' => $e->getMessage(),
+                        'bloque_id' => $qrSesion->bloque_id,
+                        'token' => $request->token,
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    // Si hay error al validar el horario, permitir marcar (no bloquear por error técnico)
+                    // pero registrar el error para debugging
+                }
+            }
+
             // Verificar si ya marcó asistencia
-            $existente = Asistencia::where('docente_id', $request->docente_id)
+            // Convertir fecha a formato string para whereDate
+            $fechaFormato = $qrSesion->fecha instanceof \Carbon\Carbon 
+                ? $qrSesion->fecha->toDateString() 
+                : $qrSesion->fecha;
+            
+            $existente = Asistencia::where('docente_id', $docenteId)
                 ->where('grupo_id', $qrSesion->grupo_id)
                 ->where('bloque_id', $qrSesion->bloque_id)
-                ->whereDate('fecha', $qrSesion->fecha)
+                ->whereDate('fecha', $fechaFormato)
                 ->first();
 
             if ($existente) {
@@ -193,14 +366,20 @@ class AsistenciaController extends Controller
             }
 
             // Crear el registro de asistencia
+            // Asegurar que la fecha esté en el formato correcto
+            $fechaAsistencia = $qrSesion->fecha instanceof \Carbon\Carbon 
+                ? $qrSesion->fecha->format('Y-m-d') 
+                : $qrSesion->fecha;
+            
             $asistencia = Asistencia::create([
-                'docente_id' => $request->docente_id,
+                'docente_id' => $docenteId,
                 'grupo_id' => $qrSesion->grupo_id,
                 'bloque_id' => $qrSesion->bloque_id,
-                'fecha' => $qrSesion->fecha,
+                'fecha' => $fechaAsistencia,
                 'estado' => 'presente',
-                'modo' => 'qr',
-                'observacion' => 'Marcado por QR'
+                'modo' => 'QR', // Debe ser 'QR' en mayúsculas según el enum de la base de datos
+                'observacion' => 'Marcado por QR',
+                'hora_marcado' => now()->setTimezone(config('app.timezone')),
             ]);
 
             $asistencia->load(['docente', 'grupo.materia', 'bloque']);
@@ -212,9 +391,20 @@ class AsistenciaController extends Controller
                 'data' => $asistencia
             ], 201);
         } catch (\Exception $e) {
+            Log::error('Error al marcar asistencia por QR', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'request' => $request->all(),
+                'usuario_id' => $request->user()?->id,
+                'token' => $request->token ?? null
+            ]);
+            
             return response()->json([
                 'message' => 'Error al marcar asistencia',
-                'error' => $e->getMessage()
+                'error' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor',
+                'file' => config('app.debug') ? $e->getFile() . ':' . $e->getLine() : null
             ], 500);
         }
     }
@@ -308,15 +498,22 @@ class AsistenciaController extends Controller
     }
 
     /**
-     * Exportar asistencias a Excel
+     * Exportar asistencias a Excel o PDF
      * 
-     * POST /api/asistencias/exportar
+     * GET /api/asistencias/exportar?formato=excel|pdf
+     * 
+     * Query params:
+     * - formato: excel o pdf (default: excel)
+     * - docente_id: Filtrar por docente
+     * - grupo_id: Filtrar por grupo
+     * - fecha_inicio: Fecha inicio
+     * - fecha_fin: Fecha fin
+     * - estado: Filtrar por estado
      */
     public function exportar(Request $request)
     {
         try {
-            // TODO: Implementar exportación a Excel usando Laravel Excel
-            // Por ahora retorna los datos en JSON
+            $formato = $request->input('formato', 'excel'); // excel o pdf
             
             $query = Asistencia::with([
                 'docente',
@@ -324,7 +521,7 @@ class AsistenciaController extends Controller
                 'bloque'
             ]);
 
-            // Aplicar los mismos filtros que en index
+            // Aplicar filtros
             if ($request->filled('docente_id')) {
                 $query->where('docente_id', $request->docente_id);
             }
@@ -333,23 +530,46 @@ class AsistenciaController extends Controller
                 $query->where('grupo_id', $request->grupo_id);
             }
 
-            if ($request->filled('fecha_desde')) {
-                $query->whereDate('fecha', '>=', $request->fecha_desde);
+            if ($request->filled('fecha_inicio')) {
+                $query->whereDate('fecha', '>=', $request->fecha_inicio);
             }
 
-            if ($request->filled('fecha_hasta')) {
-                $query->whereDate('fecha', '<=', $request->fecha_hasta);
+            if ($request->filled('fecha_fin')) {
+                $query->whereDate('fecha', '<=', $request->fecha_fin);
+            }
+
+            if ($request->filled('estado')) {
+                $query->where('estado', $request->estado);
             }
 
             $asistencias = $query->orderBy('fecha', 'desc')->get();
 
-            $this->logConsultar('asistencia', $asistencias->count());
+            $this->logActivity(
+                'exportar',
+                "Exportó reporte de asistencias en formato {$formato}",
+                [
+                    'formato' => $formato,
+                    'total' => $asistencias->count(),
+                    'filtros' => $request->only(['docente_id', 'grupo_id', 'fecha_inicio', 'fecha_fin', 'estado']),
+                ]
+            );
 
-            return response()->json([
-                'message' => 'Datos preparados para exportación',
-                'total' => $asistencias->count(),
-                'data' => $asistencias
-            ]);
+            if ($formato === 'pdf') {
+                // Exportar a PDF
+                $export = new \App\Exports\AsistenciasPdfExport(
+                    $asistencias,
+                    $request->only(['docente_id', 'grupo_id', 'fecha_inicio', 'fecha_fin', 'estado'])
+                );
+                
+                return $export->download();
+            } else {
+                // Exportar a Excel
+                return \Maatwebsite\Excel\Facades\Excel::download(
+                    new \App\Exports\AsistenciasExport($asistencias),
+                    'reporte-asistencias-' . now()->setTimezone(config('app.timezone'))->format('Y-m-d') . '.xlsx'
+                );
+            }
+
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al exportar asistencias',

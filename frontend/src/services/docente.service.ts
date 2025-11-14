@@ -106,3 +106,21 @@ export const deleteDocente = async (id: string): Promise<void> => {
 export const getEstadisticas = async (): Promise<DocenteEstadisticas> => {
   return api.get<DocenteEstadisticas>("/docentes/estadisticas");
 };
+
+/**
+ * Exporta docentes a Excel o PDF
+ */
+export const exportarDocentes = async (
+  filters?: DocenteFilters,
+  formato: "excel" | "pdf" = "excel"
+): Promise<Blob> => {
+  const params = new URLSearchParams();
+  params.append("formato", formato);
+  if (filters?.search) params.append("search", filters.search);
+  if (filters?.estado) params.append("estado", filters.estado);
+
+  const queryString = params.toString();
+  const url = `/docentes/exportar?${queryString}`;
+
+  return api.downloadFile(url);
+};

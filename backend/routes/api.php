@@ -18,6 +18,8 @@ use App\Http\Controllers\Api\TiempoHorarios\CargaDocenteController;
 use App\Http\Controllers\Api\TiempoHorarios\HorarioGrupoController;
 use App\Http\Controllers\Api\Asistencia\AsistenciaController;
 use App\Http\Controllers\Api\Asistencia\QrSesionController;
+use App\Http\Controllers\Api\Importacion\ImportacionController;
+use App\Http\Controllers\Api\DashboardController;
 
 /**
  * Rutas de Autenticación (públicas)
@@ -39,6 +41,13 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
+    });
+
+    /**
+     * Rutas de Dashboard
+     */
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/estadisticas', [DashboardController::class, 'estadisticas']);
     });
 
     /**
@@ -93,6 +102,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('docentes')->group(function () {
         Route::get('/', [DocenteController::class, 'index']);
         Route::get('/estadisticas', [DocenteController::class, 'estadisticas']);
+        Route::get('/exportar', [DocenteController::class, 'exportar']);
         Route::post('/', [DocenteController::class, 'store']);
         Route::get('/{id}', [DocenteController::class, 'show']);
         Route::put('/{id}', [DocenteController::class, 'update']);
@@ -106,6 +116,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [MateriaController::class, 'index']);
         Route::get('/carreras', [MateriaController::class, 'carreras']);
         Route::get('/estadisticas', [MateriaController::class, 'estadisticas']);
+        Route::get('/exportar', [MateriaController::class, 'exportar']);
         Route::post('/', [MateriaController::class, 'store']);
         Route::get('/{id}', [MateriaController::class, 'show']);
         Route::put('/{id}', [MateriaController::class, 'update']);
@@ -119,6 +130,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [GrupoController::class, 'index']);
         Route::get('/gestiones', [GrupoController::class, 'gestiones']);
         Route::get('/estadisticas', [GrupoController::class, 'estadisticas']);
+        Route::get('/exportar', [GrupoController::class, 'exportar']);
         Route::post('/', [GrupoController::class, 'store']);
         Route::get('/{id}', [GrupoController::class, 'show']);
         Route::put('/{id}', [GrupoController::class, 'update']);
@@ -182,6 +194,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [CargaDocenteController::class, 'index']);
         Route::get('/docente/{docenteId}', [CargaDocenteController::class, 'byDocente']);
         Route::get('/grupo/{grupoId}', [CargaDocenteController::class, 'byGrupo']);
+        Route::get('/exportar', [CargaDocenteController::class, 'exportar']);
         Route::post('/', [CargaDocenteController::class, 'store']);
         Route::get('/{id}', [CargaDocenteController::class, 'show']);
         Route::put('/{id}', [CargaDocenteController::class, 'update']);
@@ -195,6 +208,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [HorarioGrupoController::class, 'index']);
         Route::get('/grupo/{grupoId}', [HorarioGrupoController::class, 'byGrupo']);
         Route::get('/aula/{aulaId}', [HorarioGrupoController::class, 'byAula']);
+        Route::get('/exportar', [HorarioGrupoController::class, 'exportar']);
+        Route::get('/reportes/semanal', [HorarioGrupoController::class, 'reporteSemanal']);
+        Route::get('/reportes/diario', [HorarioGrupoController::class, 'reporteDiario']);
         Route::post('/verificar-conflictos', [HorarioGrupoController::class, 'verificarConflictos']);
         Route::post('/', [HorarioGrupoController::class, 'store']);
         Route::get('/{id}', [HorarioGrupoController::class, 'show']);
@@ -211,7 +227,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/qr', [AsistenciaController::class, 'marcarPorQr']);
         Route::get('/estadisticas/docente/{docenteId}', [AsistenciaController::class, 'estadisticasDocente']);
         Route::get('/estadisticas/grupo/{grupoId}', [AsistenciaController::class, 'estadisticasGrupo']);
-        Route::post('/exportar', [AsistenciaController::class, 'exportar']);
+        Route::get('/exportar', [AsistenciaController::class, 'exportar']);
+    });
+
+    /**
+     * Rutas de Importación
+     */
+    Route::prefix('importacion')->group(function () {
+        Route::post('/usuarios', [ImportacionController::class, 'importarUsuarios']);
+        Route::get('/historial', [ImportacionController::class, 'historial']);
+        Route::get('/{id}', [ImportacionController::class, 'show']);
     });
 
     /**

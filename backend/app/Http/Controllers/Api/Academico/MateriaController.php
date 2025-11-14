@@ -9,6 +9,7 @@ use App\Domain\Shared\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 /**
@@ -105,8 +106,11 @@ class MateriaController extends Controller
             ]);
 
             // 2. Asignar pre-requisitos si existen
-            if ($request->filled('requisito_ids')) {
+            if ($request->has('requisito_ids') && is_array($request->requisito_ids) && count($request->requisito_ids) > 0) {
                 $materia->requisitos()->sync($request->requisito_ids);
+            } else {
+                // Si no hay requisitos, asegurar que la relación esté vacía
+                $materia->requisitos()->sync([]);
             }
 
             // Cargar relaciones para la respuesta
@@ -135,21 +139,67 @@ class MateriaController extends Controller
     public function show(string $id)
     {
         try {
+            // Cargar materia con relaciones básicas primero
             $materia = Materia::with([
                 'carrera:id,nombre,codigo',
                 'requisitos:id,codigo,nombre,creditos',
-                'esRequisitoDe:id,codigo,nombre',
-                'grupos:id,nombre,cupo'
+                'grupos:id,codigo,capacidad'
             ])->findOrFail($id);
+            
+            // Cargar esRequisitoDe por separado para evitar problemas de serialización
+            $materia->load('esRequisitoDe:id,codigo,nombre');
             
             $this->logConsultar('materia', 1);
 
-            return response()->json($materia);
+            // Construir respuesta manualmente para control total
+            $data = [
+                'id' => $materia->id,
+                'carrera_id' => $materia->carrera_id,
+                'codigo' => $materia->codigo,
+                'nombre' => $materia->nombre,
+                'horas_semanales' => $materia->horas_semanales,
+                'creditos' => $materia->creditos,
+                'carrera' => $materia->carrera ? [
+                    'id' => $materia->carrera->id,
+                    'nombre' => $materia->carrera->nombre,
+                    'codigo' => $materia->carrera->codigo,
+                ] : null,
+                'requisitos' => $materia->requisitos->map(function ($requisito) {
+                    return [
+                        'id' => $requisito->id,
+                        'codigo' => $requisito->codigo,
+                        'nombre' => $requisito->nombre,
+                        'creditos' => $requisito->creditos,
+                    ];
+                })->toArray(),
+                'es_requisito_de' => $materia->esRequisitoDe->map(function ($materia) {
+                    return [
+                        'id' => $materia->id,
+                        'codigo' => $materia->codigo,
+                        'nombre' => $materia->nombre,
+                    ];
+                })->toArray(),
+                'grupos' => $materia->grupos->map(function ($grupo) {
+                    return [
+                        'id' => $grupo->id,
+                        'codigo' => $grupo->codigo,
+                        'capacidad' => $grupo->capacidad,
+                    ];
+                })->toArray(),
+            ];
+
+            return response()->json($data);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Materia no encontrada'
             ], 404);
         } catch (\Exception $e) {
+            Log::error('Error al obtener materia', [
+                'id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'message' => 'Error al obtener la materia',
                 'error' => $e->getMessage()
@@ -208,7 +258,8 @@ class MateriaController extends Controller
 
             // Actualizar pre-requisitos
             if ($request->has('requisito_ids')) {
-                $materia->requisitos()->sync($request->requisito_ids ?? []);
+                $requisitoIds = is_array($request->requisito_ids) ? $request->requisito_ids : [];
+                $materia->requisitos()->sync($requisitoIds);
             }
 
             // Cargar relaciones para la respuesta
@@ -336,6 +387,50 @@ class MateriaController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener carreras',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * 📤 Exportar materias a Excel
+     * GET /api/materias/exportar?formato=excel
+     */
+    public function exportar(Request $request)
+    {
+        try {
+            $formato = $request->input('formato', 'excel');
+            
+            $query = Materia::query()->with(['carrera', 'requisitos']);
+
+            // Aplicar los mismos filtros que en index
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('codigo', 'ilike', "%{$search}%")
+                      ->orWhere('nombre', 'ilike', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('carrera_id')) {
+                $query->where('carrera_id', $request->carrera_id);
+            }
+
+            $materias = $query->orderBy('codigo', 'asc')->get();
+
+            $this->logActivity(
+                'exportar',
+                "Exportó listado de materias en formato {$formato}",
+                ['formato' => $formato, 'total' => $materias->count()]
+            );
+
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\MateriasExport($materias),
+                'materias-' . now()->setTimezone(config('app.timezone'))->format('Y-m-d') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al exportar materias',
                 'error' => $e->getMessage()
             ], 500);
         }

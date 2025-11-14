@@ -6,6 +6,7 @@ import { ProtectedLayout } from "@/components/shared/ProtectedLayout";
 import {
   getDocentes,
   deleteDocente,
+  exportarDocentes,
   type DocenteFilters,
 } from "@/services/docente.service";
 import type { Docente, PaginatedResponse } from "@/types";
@@ -80,26 +81,76 @@ export default function DocentesPage() {
     setPagination({ ...pagination, current_page: page });
   };
 
+  const handleExportar = async (formato: "excel" | "pdf") => {
+    try {
+      const filters: DocenteFilters = {
+        search,
+        estado: estado || undefined,
+      };
+
+      const blob = await exportarDocentes(filters, formato);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `docentes-${new Date().toISOString().split("T")[0]}.${
+        formato === "excel" ? "xlsx" : "pdf"
+      }`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error: any) {
+      console.error("Error al exportar:", error);
+      let errorMessage = "Error al exportar docentes";
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.status === 401) {
+        errorMessage = "No autorizado. Por favor, inicia sesión nuevamente.";
+      } else if (error.status === 500) {
+        errorMessage = "Error del servidor. Por favor, intenta más tarde.";
+      }
+      alert(errorMessage);
+    }
+  };
+
   return (
     <ProtectedLayout>
-      <div className="p-6">
+      <div className="p-3 sm:p-4 md:p-6">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-slate-100">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-100">
               👨‍🏫 Gestión de Docentes
             </h1>
-            <p className="text-slate-400 mt-1">
+            <p className="text-sm sm:text-base text-slate-400 mt-1">
               Administra los docentes del sistema
             </p>
           </div>
-          <button
-            onClick={() => router.push("/docentes/nuevo")}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-glow"
-          >
-            <span>➕</span>
-            Nuevo Docente
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => handleExportar("excel")}
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all"
+              title="Exportar a Excel"
+            >
+              <span>📊</span>
+              Excel
+            </button>
+            <button
+              onClick={() => handleExportar("pdf")}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all"
+              title="Exportar a PDF"
+            >
+              <span>📄</span>
+              PDF
+            </button>
+            <button
+              onClick={() => router.push("/docentes/nuevo")}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-glow"
+            >
+              <span>➕</span>
+              Nuevo Docente
+            </button>
+          </div>
         </div>
 
         {/* Filtros */}

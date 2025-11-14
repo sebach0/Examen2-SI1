@@ -8,9 +8,12 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libpq-dev \
+    libzip-dev \
     zip \
     unzip \
-    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd
+    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -18,15 +21,22 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy existing application directory
-COPY . .
+# Copy composer files first (for better layer caching)
+COPY composer.json composer.lock* ./
 
 # Install PHP dependencies
-RUN composer install --optimize-autoloader --no-interaction
+# Intentar install primero (más rápido), si falla usar update
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts || \
+    composer update --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage
+# Copy application files (exclude vendor, node_modules via .dockerignore)
+COPY . .
+
+# Set permissions only for necessary directories (much faster - solo storage y cache)
+# No cambiar permisos de vendor, app, etc. (innecesario y muy lento)
+RUN mkdir -p /var/www/storage/logs /var/www/storage/framework/{sessions,views,cache} /var/www/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 # Expose port
 EXPOSE 8000

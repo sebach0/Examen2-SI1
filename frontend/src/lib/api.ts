@@ -76,6 +76,65 @@ export class ApiClient {
   }
 
   /**
+   * Download file (blob) - Para exportaciones Excel/PDF
+   * No incluye Content-Type para permitir que el servidor determine el tipo MIME
+   */
+  async downloadFile(
+    endpoint: string,
+    options?: RequestInit
+  ): Promise<Blob> {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    // Obtener token del localStorage (mismo método que request)
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+
+    try {
+      // Headers específicos para descarga de archivos (sin Content-Type)
+      const downloadHeaders: HeadersInit = {
+        Accept: "*/*", // Aceptar cualquier tipo de archivo
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options?.headers,
+      };
+
+      const response = await fetch(url, {
+        credentials: "include", // Importante para cookies httpOnly
+        ...options,
+        headers: downloadHeaders,
+      });
+
+      // Si no es exitoso, lanzar error
+      if (!response.ok) {
+        const errorText = await response.text();
+        let error: ApiError;
+        try {
+          error = JSON.parse(errorText);
+        } catch {
+          error = {
+            message: `Error ${response.status}: ${response.statusText}`,
+            status: response.status,
+          };
+        }
+        throw error;
+      }
+
+      // Retornar blob
+      return await response.blob();
+    } catch (error) {
+      // Re-lanzar errores de API
+      if ((error as ApiError).status) {
+        throw error;
+      }
+
+      // Error de red u otro
+      throw {
+        message: "Error de conexión con el servidor",
+        status: 0,
+      } as ApiError;
+    }
+  }
+
+  /**
    * Request genérico con manejo de errores
    */
   private async request<T>(

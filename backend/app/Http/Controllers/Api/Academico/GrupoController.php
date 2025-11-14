@@ -367,4 +367,64 @@ class GrupoController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * 📤 Exportar grupos a Excel
+     * GET /api/grupos/exportar?formato=excel
+     */
+    public function exportar(Request $request)
+    {
+        try {
+            $formato = $request->input('formato', 'excel');
+            
+            $query = Grupo::query()->with([
+                'materia.carrera',
+                'gestion'
+            ]);
+
+            // Aplicar los mismos filtros que en index
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('codigo', 'ilike', "%{$search}%")
+                      ->orWhereHas('materia', function ($mq) use ($search) {
+                          $mq->where('nombre', 'ilike', "%{$search}%")
+                             ->orWhere('codigo', 'ilike', "%{$search}%");
+                      });
+                });
+            }
+
+            if ($request->filled('gestion_id')) {
+                $query->where('gestion_id', $request->gestion_id);
+            }
+
+            if ($request->filled('materia_id')) {
+                $query->where('materia_id', $request->materia_id);
+            }
+
+            if ($request->filled('carrera_id')) {
+                $query->whereHas('materia', function ($q) use ($request) {
+                    $q->where('carrera_id', $request->carrera_id);
+                });
+            }
+
+            $grupos = $query->orderBy('codigo', 'asc')->get();
+
+            $this->logActivity(
+                'exportar',
+                "Exportó listado de grupos en formato {$formato}",
+                ['formato' => $formato, 'total' => $grupos->count()]
+            );
+
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\GruposExport($grupos),
+                'grupos-' . now()->setTimezone(config('app.timezone'))->format('Y-m-d') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al exportar grupos',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

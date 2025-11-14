@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { hasAuthToken } from "@/lib/auth";
+import { hasAuthToken, isSuperAdmin, hasRole, hasPermission } from "@/lib/auth";
 import { LogoutButton } from "@/components/shared/LogoutButton";
 import { getCurrentUser } from "@/services/auth.service";
 import type { Usuario } from "@/types";
@@ -28,6 +28,7 @@ import {
   KeyRound,
   Wrench,
   FileText,
+  Upload,
   type LucideIcon,
 } from "lucide-react";
 
@@ -36,7 +37,8 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [user, setUser] = useState<Usuario | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Cerrado por defecto en móvil
+  const [isMobile, setIsMobile] = useState(false);
 
   // Estados para manejar secciones colapsables
   const [expandedSections, setExpandedSections] = useState<
@@ -66,10 +68,19 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
 
       try {
         const userData = await getCurrentUser();
-        setUser(userData);
+        // Asegurar que userData sea un objeto válido
+        if (userData && typeof userData === 'object') {
+          console.log("Usuario cargado:", userData);
+          setUser(userData);
+          // Guardar usuario en localStorage para acceso rápido
+          localStorage.setItem("auth_user", JSON.stringify(userData));
+        } else {
+          throw new Error("Datos de usuario inválidos");
+        }
       } catch (error) {
         console.error("Error al obtener usuario:", error);
         localStorage.removeItem("auth_token");
+        localStorage.removeItem("auth_user");
         router.push("/login");
       } finally {
         setIsLoading(false);
@@ -78,6 +89,22 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
 
     checkAuth();
   }, [router]);
+
+  // Detectar si es móvil
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+      if (window.innerWidth >= 1024) {
+        setIsSidebarOpen(true); // Abrir en desktop
+      } else {
+        setIsSidebarOpen(false); // Cerrar en móvil
+      }
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   if (isLoading || !user) {
     return (
@@ -139,29 +166,51 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
 
             {/* Right Section - User Info */}
             <div className="flex items-center space-x-2 sm:space-x-3">
-              {/* Username - Oculto en móvil */}
-              <div className="hidden md:flex flex-col items-end">
-                <span className="text-sm font-medium text-slate-100">
-                  {user.username || "Usuario"}
+              {/* Username - Siempre visible, con mejor responsive */}
+              <div className="flex flex-col items-end">
+                <span className="text-xs sm:text-sm font-medium text-slate-100 truncate max-w-[100px] sm:max-w-[150px] md:max-w-[200px]">
+                  {user?.username || user?.email || "Usuario"}
                 </span>
-                <span className="text-xs text-slate-400">
-                  {user.roles && user.roles.length > 0
-                    ? user.roles[0].nombre
+                <span className="text-[10px] sm:text-xs text-slate-400 truncate max-w-[100px] sm:max-w-[150px] md:max-w-[200px]">
+                  {user?.roles && user.roles.length > 0
+                    ? user.roles.map(r => r.nombre).join(", ")
                     : "Usuario"}
                 </span>
               </div>
 
-              {/* Avatar */}
+              {/* Avatar con dropdown en móvil */}
               <div className="relative group">
                 <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full gradient-primary flex items-center justify-center text-white font-semibold shadow-glow ring-2 ring-slate-700 cursor-pointer transition-transform duration-200 hover:scale-105">
-                  {(user.username || "U").charAt(0).toUpperCase()}
+                  {(user.username || user.email || "U").charAt(0).toUpperCase()}
                 </div>
-                {/* Tooltip con info del usuario */}
-                <div className="absolute right-0 mt-2 w-48 glass rounded-lg shadow-xl border border-slate-600 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 p-3 md:hidden">
-                  <p className="text-sm font-medium text-slate-100">
-                    {user.username}
-                  </p>
-                  <p className="text-xs text-slate-400 mt-1">{user.email}</p>
+                {/* Tooltip con info del usuario - Visible en hover (desktop) y click (móvil) */}
+                <div className="absolute right-0 mt-2 w-56 glass rounded-lg shadow-xl border border-slate-600 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 p-3 z-50">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <div className="h-10 w-10 rounded-full gradient-primary flex items-center justify-center text-white font-semibold">
+                      {(user.username || user.email || "U").charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-100 truncate">
+                        {user.username || user.email || "Usuario"}
+                      </p>
+                      <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                    </div>
+                  </div>
+                  {user.roles && user.roles.length > 0 && (
+                    <div className="border-t border-slate-600 pt-2 mt-2">
+                      <p className="text-xs text-slate-400 mb-1">Roles:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {user.roles.map((rol) => (
+                          <span
+                            key={rol.id}
+                            className="text-xs px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded"
+                          >
+                            {rol.nombre}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -194,9 +243,10 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
                 : "w-0 -translate-x-full lg:w-16 lg:translate-x-0"
             }
           `}
+          aria-label="Sidebar navigation"
         >
           <nav className="p-4 space-y-1">
-            {/* Dashboard */}
+            {/* Dashboard - Visible para todos */}
             <NavLink
               href="/dashboard"
               icon={LayoutDashboard}
@@ -206,211 +256,284 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
               Dashboard
             </NavLink>
 
-            {/* Sección Académico */}
-            <MenuSection
-              title="Académico"
-              icon={GraduationCap}
-              isOpen={isSidebarOpen}
-              isExpanded={expandedSections.academico}
-              onToggle={() => toggleSection("academico")}
-            >
-              <NavLink
-                href="/academico/materias"
-                icon={BookOpen}
-                active={pathname.startsWith("/academico/materias")}
+            {/* Sección Académico - Superadmin ve todo, otros según permisos */}
+            {(isSuperAdmin(user) || hasPermission(user, "academico.ver") || hasPermission(user, "docentes.ver") || hasPermission(user, "materias.ver")) && (
+              <MenuSection
+                title="Académico"
+                icon={GraduationCap}
                 isOpen={isSidebarOpen}
-                isSubmenu
+                isExpanded={expandedSections.academico}
+                onToggle={() => toggleSection("academico")}
               >
-                Materias
-              </NavLink>
-              <NavLink
-                href="/academico/grupos"
-                icon={Users}
-                active={pathname.startsWith("/academico/grupos")}
-                isOpen={isSidebarOpen}
-                isSubmenu
-              >
-                Grupos
-              </NavLink>
-              <NavLink
-                href="/academico/gestiones"
-                icon={Calendar}
-                active={pathname.startsWith("/academico/gestiones")}
-                isOpen={isSidebarOpen}
-                isSubmenu
-              >
-                Gestiones
-              </NavLink>
-              <NavLink
-                href="/docentes"
-                icon={UserCircle}
-                active={pathname.startsWith("/docentes")}
-                isOpen={isSidebarOpen}
-                isSubmenu
-              >
-                Docentes
-              </NavLink>
-            </MenuSection>
+                {(isSuperAdmin(user) || hasPermission(user, "materias.ver")) && (
+                  <NavLink
+                    href="/academico/materias"
+                    icon={BookOpen}
+                    active={pathname.startsWith("/academico/materias")}
+                    isOpen={isSidebarOpen}
+                    isSubmenu
+                  >
+                    Materias
+                  </NavLink>
+                )}
+                {(isSuperAdmin(user) || hasPermission(user, "grupos.ver")) && (
+                  <NavLink
+                    href="/academico/grupos"
+                    icon={Users}
+                    active={pathname.startsWith("/academico/grupos")}
+                    isOpen={isSidebarOpen}
+                    isSubmenu
+                  >
+                    Grupos
+                  </NavLink>
+                )}
+                {(isSuperAdmin(user) || hasPermission(user, "gestiones.ver")) && (
+                  <NavLink
+                    href="/academico/gestiones"
+                    icon={Calendar}
+                    active={pathname.startsWith("/academico/gestiones")}
+                    isOpen={isSidebarOpen}
+                    isSubmenu
+                  >
+                    Gestiones
+                  </NavLink>
+                )}
+                {(isSuperAdmin(user) || hasPermission(user, "docentes.ver")) && (
+                  <NavLink
+                    href="/docentes"
+                    icon={UserCircle}
+                    active={pathname.startsWith("/docentes")}
+                    isOpen={isSidebarOpen}
+                    isSubmenu
+                  >
+                    Docentes
+                  </NavLink>
+                )}
+              </MenuSection>
+            )}
 
-            {/* Sección Infraestructura */}
-            <MenuSection
-              title="Infraestructura"
-              icon={Building2}
-              isOpen={isSidebarOpen}
-              isExpanded={expandedSections.infraestructura}
-              onToggle={() => toggleSection("infraestructura")}
-            >
-              <NavLink
-                href="/infra/edificios"
-                icon={Building}
-                active={pathname.startsWith("/infra/edificios")}
+            {/* Sección Infraestructura - Solo para admin/coordinador */}
+            {(isSuperAdmin(user) || hasPermission(user, "aulas.ver") || hasPermission(user, "edificios.ver")) && (
+              <MenuSection
+                title="Infraestructura"
+                icon={Building2}
                 isOpen={isSidebarOpen}
-                isSubmenu
+                isExpanded={expandedSections.infraestructura}
+                onToggle={() => toggleSection("infraestructura")}
               >
-                Edificios
-              </NavLink>
-              <NavLink
-                href="/infra/aulas"
-                icon={DoorOpen}
-                active={pathname.startsWith("/infra/aulas")}
-                isOpen={isSidebarOpen}
-                isSubmenu
-              >
-                Aulas
-              </NavLink>
-            </MenuSection>
+                {(isSuperAdmin(user) || hasPermission(user, "edificios.ver")) && (
+                  <NavLink
+                    href="/infra/edificios"
+                    icon={Building}
+                    active={pathname.startsWith("/infra/edificios")}
+                    isOpen={isSidebarOpen}
+                    isSubmenu
+                  >
+                    Edificios
+                  </NavLink>
+                )}
+                {(isSuperAdmin(user) || hasPermission(user, "aulas.ver")) && (
+                  <NavLink
+                    href="/infra/aulas"
+                    icon={DoorOpen}
+                    active={pathname.startsWith("/infra/aulas")}
+                    isOpen={isSidebarOpen}
+                    isSubmenu
+                  >
+                    Aulas
+                  </NavLink>
+                )}
+              </MenuSection>
+            )}
 
-            {/* Sección Horarios */}
-            <MenuSection
-              title="Horarios"
-              icon={Clock}
-              isOpen={isSidebarOpen}
-              isExpanded={expandedSections.horarios}
-              onToggle={() => toggleSection("horarios")}
-            >
-              <NavLink
-                href="/horarios/bloques"
+            {/* Sección Horarios - Visible para todos, pero con opciones según rol */}
+            {(isSuperAdmin(user) || hasPermission(user, "horarios.ver") || hasRole(user, "docente")) && (
+              <MenuSection
+                title="Horarios"
                 icon={Clock}
-                active={pathname.startsWith("/horarios/bloques")}
                 isOpen={isSidebarOpen}
-                isSubmenu
+                isExpanded={expandedSections.horarios}
+                onToggle={() => toggleSection("horarios")}
               >
-                Bloques
-              </NavLink>
-              <NavLink
-                href="/horarios/cargas"
-                icon={ClipboardList}
-                active={pathname.startsWith("/horarios/cargas")}
-                isOpen={isSidebarOpen}
-                isSubmenu
-              >
-                Cargas
-              </NavLink>
-              <NavLink
-                href="/horarios/programacion"
-                icon={CalendarDays}
-                active={pathname.startsWith("/horarios/programacion")}
-                isOpen={isSidebarOpen}
-                isSubmenu
-              >
-                Programación
-              </NavLink>
-            </MenuSection>
+                {/* Bloques y Programación solo para admin/coordinador */}
+                {(isSuperAdmin(user) || hasPermission(user, "horarios.crear")) && (
+                  <>
+                    <NavLink
+                      href="/horarios/bloques"
+                      icon={Clock}
+                      active={pathname.startsWith("/horarios/bloques")}
+                      isOpen={isSidebarOpen}
+                      isSubmenu
+                    >
+                      Bloques
+                    </NavLink>
+                    <NavLink
+                      href="/horarios/programacion"
+                      icon={CalendarDays}
+                      active={pathname.startsWith("/horarios/programacion")}
+                      isOpen={isSidebarOpen}
+                      isSubmenu
+                    >
+                      Programación
+                    </NavLink>
+                  </>
+                )}
+                {/* Cargas visible para admin y coordinador */}
+                {(isSuperAdmin(user) || hasPermission(user, "cargas.ver")) && (
+                  <NavLink
+                    href="/horarios/cargas"
+                    icon={ClipboardList}
+                    active={pathname.startsWith("/horarios/cargas")}
+                    isOpen={isSidebarOpen}
+                    isSubmenu
+                  >
+                    Cargas
+                  </NavLink>
+                )}
+                {/* Reportes visible para todos (docentes ven solo sus horarios) */}
+                <NavLink
+                  href="/horarios/reportes"
+                  icon={BarChart3}
+                  active={pathname.startsWith("/horarios/reportes")}
+                  isOpen={isSidebarOpen}
+                  isSubmenu
+                >
+                  {hasRole(user, "docente") ? "Mis Horarios" : "Reportes"}
+                </NavLink>
+              </MenuSection>
+            )}
 
-            {/* Sección Asistencia */}
-            <MenuSection
-              title="Asistencia"
-              icon={CheckCircle2}
-              isOpen={isSidebarOpen}
-              isExpanded={expandedSections.asistencia}
-              onToggle={() => toggleSection("asistencia")}
-            >
-              <NavLink
-                href="/asistencia/marcar"
-                icon={CheckSquare}
-                active={pathname.startsWith("/asistencia/marcar")}
+            {/* Sección Asistencia - Visible para todos */}
+            {(isSuperAdmin(user) || hasPermission(user, "asistencia.ver") || hasRole(user, "docente")) && (
+              <MenuSection
+                title="Asistencia"
+                icon={CheckCircle2}
                 isOpen={isSidebarOpen}
-                isSubmenu
+                isExpanded={expandedSections.asistencia}
+                onToggle={() => toggleSection("asistencia")}
               >
-                Marcar
-              </NavLink>
-              <NavLink
-                href="/asistencia/reportes"
-                icon={BarChart3}
-                active={pathname.startsWith("/asistencia/reportes")}
-                isOpen={isSidebarOpen}
-                isSubmenu
-              >
-                Reportes
-              </NavLink>
-            </MenuSection>
+                {/* Marcar asistencia - Visible para todos */}
+                <NavLink
+                  href="/asistencia/marcar"
+                  icon={CheckSquare}
+                  active={pathname.startsWith("/asistencia/marcar")}
+                  isOpen={isSidebarOpen}
+                  isSubmenu
+                >
+                  {hasRole(user, "docente") ? "Marcar Mi Asistencia" : "Marcar"}
+                </NavLink>
+                {/* Escaneo QR - Solo para admin/coordinador */}
+                {(isSuperAdmin(user) || hasPermission(user, "asistencia.marcar")) && (
+                  <NavLink
+                    href="/asistencia/escaneo"
+                    icon={CheckCircle2}
+                    active={pathname.startsWith("/asistencia/escaneo")}
+                    isOpen={isSidebarOpen}
+                    isSubmenu
+                  >
+                    Escanear QR
+                  </NavLink>
+                )}
+                {/* Reportes - Visible para todos (docentes ven solo los suyos) */}
+                <NavLink
+                  href="/asistencia/reportes"
+                  icon={BarChart3}
+                  active={pathname.startsWith("/asistencia/reportes")}
+                  isOpen={isSidebarOpen}
+                  isSubmenu
+                >
+                  {hasRole(user, "docente") ? "Mis Asistencias" : "Reportes"}
+                </NavLink>
+              </MenuSection>
+            )}
 
-            {/* Sección Administración */}
-            <MenuSection
-              title="Administración"
-              icon={Settings}
-              isOpen={isSidebarOpen}
-              isExpanded={expandedSections.administracion}
-              onToggle={() => toggleSection("administracion")}
-            >
-              <NavLink
-                href="/usuarios"
-                icon={Users}
-                active={pathname.startsWith("/usuarios")}
+            {/* Sección Administración - Solo para superadmin/admin */}
+            {(isSuperAdmin(user) || hasPermission(user, "usuarios.ver") || hasPermission(user, "roles.ver")) && (
+              <MenuSection
+                title="Administración"
+                icon={Settings}
                 isOpen={isSidebarOpen}
-                isSubmenu
+                isExpanded={expandedSections.administracion}
+                onToggle={() => toggleSection("administracion")}
               >
-                Usuarios
-              </NavLink>
-              <NavLink
-                href="/roles"
-                icon={Shield}
-                active={pathname.startsWith("/roles")}
-                isOpen={isSidebarOpen}
-                isSubmenu
-              >
-                Roles
-              </NavLink>
-              <NavLink
-                href="/permisos"
-                icon={KeyRound}
-                active={pathname.startsWith("/permisos")}
-                isOpen={isSidebarOpen}
-                isSubmenu
-              >
-                Permisos
-              </NavLink>
-            </MenuSection>
+                {(isSuperAdmin(user) || hasPermission(user, "usuarios.ver")) && (
+                  <NavLink
+                    href="/usuarios"
+                    icon={Users}
+                    active={pathname.startsWith("/usuarios")}
+                    isOpen={isSidebarOpen}
+                    isSubmenu
+                  >
+                    Usuarios
+                  </NavLink>
+                )}
+                {(isSuperAdmin(user) || hasPermission(user, "usuarios.crear")) && (
+                  <NavLink
+                    href="/importacion"
+                    icon={Upload}
+                    active={pathname.startsWith("/importacion")}
+                    isOpen={isSidebarOpen}
+                    isSubmenu
+                  >
+                    Importar Usuarios
+                  </NavLink>
+                )}
+                {(isSuperAdmin(user) || hasPermission(user, "roles.ver")) && (
+                  <NavLink
+                    href="/roles"
+                    icon={Shield}
+                    active={pathname.startsWith("/roles")}
+                    isOpen={isSidebarOpen}
+                    isSubmenu
+                  >
+                    Roles
+                  </NavLink>
+                )}
+                {(isSuperAdmin(user) || hasPermission(user, "permisos.ver")) && (
+                  <NavLink
+                    href="/permisos"
+                    icon={KeyRound}
+                    active={pathname.startsWith("/permisos")}
+                    isOpen={isSidebarOpen}
+                    isSubmenu
+                  >
+                    Permisos
+                  </NavLink>
+                )}
+              </MenuSection>
+            )}
 
-            {/* Sección Sistema */}
-            <MenuSection
-              title="Sistema"
-              icon={Wrench}
-              isOpen={isSidebarOpen}
-              isExpanded={expandedSections.sistema}
-              onToggle={() => toggleSection("sistema")}
-            >
-              <NavLink
-                href="/bitacora"
-                icon={FileText}
-                active={pathname === "/bitacora"}
+            {/* Sección Sistema - Solo para superadmin/admin */}
+            {(isSuperAdmin(user) || hasPermission(user, "bitacora.ver")) && (
+              <MenuSection
+                title="Sistema"
+                icon={Wrench}
                 isOpen={isSidebarOpen}
-                isSubmenu
+                isExpanded={expandedSections.sistema}
+                onToggle={() => toggleSection("sistema")}
               >
-                Bitácora
-              </NavLink>
-            </MenuSection>
+                <NavLink
+                  href="/bitacora"
+                  icon={FileText}
+                  active={pathname === "/bitacora"}
+                  isOpen={isSidebarOpen}
+                  isSubmenu
+                >
+                  Bitácora
+                </NavLink>
+              </MenuSection>
+            )}
           </nav>
         </aside>
 
         {/* Main content con transición suave - Tema Oscuro */}
         <main
           className={`
-            flex-1 p-4 sm:p-6 lg:p-8 transition-all duration-300 ease-in-out min-h-screen bg-slate-900
+            flex-1 p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 ease-in-out min-h-screen bg-slate-900
             ${isSidebarOpen ? "ml-0 lg:ml-64" : "ml-0 lg:ml-16"}
           `}
         >
-          <div className="max-w-7xl mx-auto">{children}</div>
+          <div className="max-w-7xl mx-auto w-full">{children}</div>
         </main>
       </div>
     </div>

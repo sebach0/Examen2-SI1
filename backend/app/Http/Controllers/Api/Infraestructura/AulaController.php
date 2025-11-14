@@ -172,7 +172,7 @@ class AulaController extends Controller
             $aula = Aula::with(['edificio', 'horarios.grupo.materia'])
                 ->findOrFail($id);
 
-            $this->logConsultar('aula', "Consulta del aula {$aula->codigo}");
+            $this->logConsultar('aula', 1);
 
             return response()->json($aula);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {

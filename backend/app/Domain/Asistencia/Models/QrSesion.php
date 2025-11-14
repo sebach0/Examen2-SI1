@@ -67,6 +67,39 @@ class QrSesion extends Model
     ];
 
     /**
+     * Accessor: Asegurar que expira_en siempre esté en timezone de Bolivia
+     * Nota: El cast ya convierte a Carbon, pero necesitamos asegurar el timezone
+     * IMPORTANTE: Usar getRawOriginal para evitar recursión infinita
+     */
+    public function getExpiraEnAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+        
+        // Si ya es Carbon (después del cast), asegurar timezone
+        if ($value instanceof \Carbon\Carbon) {
+            // Verificar si ya está en el timezone correcto para evitar conversiones innecesarias
+            if ($value->timezone->getName() === config('app.timezone')) {
+                return $value;
+            }
+            return $value->copy()->setTimezone(config('app.timezone'));
+        }
+        
+        // Si es string, parsearlo y establecer timezone
+        try {
+            return \Carbon\Carbon::parse($value)->setTimezone(config('app.timezone'));
+        } catch (\Exception $e) {
+            // Si hay error al parsear, retornar null o el valor original
+            \Log::warning('Error al parsear expira_en en QrSesion', [
+                'value' => $value,
+                'error' => $e->getMessage()
+            ]);
+            return null;
+        }
+    }
+
+    /**
      * BOOT: Generar token automáticamente
      */
     protected static function boot()
@@ -79,9 +112,9 @@ class QrSesion extends Model
                 $sesion->token = Str::random(32);
             }
 
-            // Por defecto, expira en 15 minutos
+            // Por defecto, expira en 15 minutos (en timezone de Bolivia)
             if (!$sesion->expira_en) {
-                $sesion->expira_en = now()->addMinutes(15);
+                $sesion->expira_en = now()->setTimezone(config('app.timezone'))->addMinutes(15);
             }
 
             // Por defecto, está activo

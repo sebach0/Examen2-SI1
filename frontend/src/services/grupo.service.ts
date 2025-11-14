@@ -112,3 +112,23 @@ export const getEstadisticas = async (): Promise<GrupoEstadisticas> => {
 export const getGestiones = async (): Promise<Gestion[]> => {
   return api.get<Gestion[]>("/grupos/gestiones");
 };
+
+/**
+ * Exporta grupos a Excel
+ */
+export const exportarGrupos = async (
+  filters?: GrupoFilters,
+  formato: "excel" = "excel"
+): Promise<Blob> => {
+  const params = new URLSearchParams();
+  params.append("formato", formato);
+  if (filters?.search) params.append("search", filters.search);
+  if (filters?.gestion_id) params.append("gestion_id", filters.gestion_id);
+  if (filters?.materia_id) params.append("materia_id", filters.materia_id);
+  if (filters?.carrera_id) params.append("carrera_id", filters.carrera_id);
+
+  const queryString = params.toString();
+  const url = `/grupos/exportar?${queryString}`;
+
+  return api.downloadFile(url);
+};

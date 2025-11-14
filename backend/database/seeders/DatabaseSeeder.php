@@ -15,20 +15,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-        
+        // Ejecutar seeders esenciales
         $this->call([
-            AuthSeeder::class,
-            AcademicoSeeder::class,
-            AulasSeeder::class,
-            BloquesHorariosSeeder::class,
-            DocentesSeeder::class,
-            GruposSeeder::class,
+            AuthSeeder::class, // Esencial: crea roles, permisos y usuarios básicos para login
+            CarrerasSeeder::class, // Carreras básicas del sistema
         ]);
     }
 }

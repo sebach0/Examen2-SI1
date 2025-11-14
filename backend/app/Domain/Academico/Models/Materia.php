@@ -70,7 +70,7 @@ class Materia extends Model
             'materia_requisito',
             'materia_id',      // Esta materia
             'requisito_id'     // Materias requeridas
-        );
+        )->using(MateriaRequisito::class);
     }
 
     /**
@@ -86,7 +86,7 @@ class Materia extends Model
             'materia_requisito',
             'requisito_id',    // Esta materia es requisito
             'materia_id'       // De estas materias
-        );
+        )->using(MateriaRequisito::class);
     }
 
     /**

@@ -39,11 +39,19 @@ export default function GestionFormPage() {
   const loadGestion = async () => {
     try {
       const gestion = await getGestionById(params.id as string);
+
+      // Formatear fechas para input type="date" (YYYY-MM-DD)
+      const formatDateForInput = (dateString: string) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        return date.toISOString().split("T")[0];
+      };
+
       setFormData({
         anio: gestion.anio,
         periodo: gestion.periodo,
-        fecha_inicio: gestion.fecha_inicio,
-        fecha_fin: gestion.fecha_fin,
+        fecha_inicio: formatDateForInput(gestion.fecha_inicio),
+        fecha_fin: formatDateForInput(gestion.fecha_fin),
         codigo: gestion.codigo,
       });
     } catch (error) {
@@ -57,16 +65,31 @@ export default function GestionFormPage() {
     setLoading(true);
 
     try {
+      // Preparar datos para enviar (asegurar formato correcto)
+      const datosEnvio = {
+        anio: parseInt(formData.anio.toString()),
+        periodo: formData.periodo,
+        codigo: formData.codigo,
+        fecha_inicio: formData.fecha_inicio, // Ya está en formato YYYY-MM-DD del input
+        fecha_fin: formData.fecha_fin, // Ya está en formato YYYY-MM-DD del input
+      };
+
       if (isEditing) {
-        await updateGestion(params.id as string, formData);
+        await updateGestion(params.id as string, datosEnvio);
         alert("Gestión actualizada");
       } else {
-        await createGestion(formData as Omit<Gestion, "id">);
+        await createGestion(datosEnvio as Omit<Gestion, "id">);
         alert("Gestión creada");
       }
       router.push("/academico/gestiones");
     } catch (error: any) {
-      alert(error.response?.data?.message || "Error al guardar");
+      const errorMessage = error.response?.data?.message || "Error al guardar";
+      const errorDetails = error.response?.data?.errors
+        ? JSON.stringify(error.response.data.errors, null, 2)
+        : "";
+      alert(
+        errorMessage + (errorDetails ? `\n\nDetalles:\n${errorDetails}` : "")
+      );
     } finally {
       setLoading(false);
     }
